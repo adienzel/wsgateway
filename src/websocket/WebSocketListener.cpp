@@ -25,7 +25,9 @@ oatpp::async::CoroutineStarter WebSocketListener::onClose(const std::shared_ptr<
     if (webSocketComponent == nullptr) {
         webSocketComponent = &WebSocketComponent::getInstance();
     }
-    webSocketComponent->removeClient(this->clientID);
+    
+    webSocketComponent->setClientNotAvailable(this->clientID);
+    // webSocketComponent->removeClient(this->clientID);
     return nullptr; // do nothing
 }
 

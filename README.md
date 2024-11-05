@@ -3,7 +3,11 @@
 ## instalation
 
 ```
-sudo apt install opoenssl libssl-dev net-tools build-essential gcc git wget curl autoconf automake cmake libtool zlib1g-dev docker.io
+sudo apt install openssl linux-headers-$(uname -r) libssl-dev net-tools build-essential gcc git wget curl autoconf automake cmake libtool zlib1g-dev docker.io
+//to avoid docker permition
+sudo groupadd -f docker
+sudo usermod -aG docker $USER
+newgrp docker
 
 ```
 

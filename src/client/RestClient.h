@@ -1,4 +1,3 @@
-
 #ifndef VGEATWAY_RESTCLIENT_H
 #define VGEATWAY_RESTCLIENT_H
 
@@ -21,6 +20,7 @@ class ClientApi : public oatpp::web::client::ApiClient {
                    PATH(String, version),
                    BODY_STRING(String, body))
 #include OATPP_CODEGEN_END(ApiClient)
+
 };
 
 #endif //VGEATWAY_RESTCLIENT_H

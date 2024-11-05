@@ -37,7 +37,10 @@ void run(int argc, const char * argv[]) {
         OATPP_LOGe(__func__, "Error creating keyspace {}", keyspace)
         exit(-1);
     }
-    if (std::string table = "vehicles"; !dbManager->create_table(table)) {
+ 
+
+    std::string table = "vehicles"; 
+    if (!dbManager->create_table(table)) {
         OATPP_LOGe(__func__, "Error creating table in keyspace {}", keyspace)
         exit(-1);
     }

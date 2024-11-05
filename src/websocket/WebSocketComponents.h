@@ -25,6 +25,20 @@ public:
         }
     }
     
+
+    /**
+     * setClientNotAvailable
+     * not delete but define in the data base that it is not connected now 
+     */
+    inline void setClientNotAvailable(oatpp::String const& clientId) {
+        while (clientMapLock.test_and_set(std::memory_order_acquire)); // Lock
+        clients.erase(clientId);
+        clientMapLock.clear(std::memory_order_release); // Unlock
+        if (!dbManager->insert_data(clientId, "NA")) {
+            OATPP_LOGe("WebSocketComponent", "failed to insert VIN {} and server {} to data base", clientId, dbManager->getAppServerName())
+        }
+    }
+
     inline void removeClient(oatpp::String const& clientId) {
         while (clientMapLock.test_and_set(std::memory_order_acquire)); // Lock
         clients.erase(clientId);

@@ -33,7 +33,14 @@ target_link_libraries(${project_name}-lib
 
 add_executable(${project_name}-exe
         src/App.cpp
-        src/utilis/ipUtils.h src/ScyllaDBManager.h)
+        src/AppComponent.h
+        src/utilis/ipUtils.h
+        src/ScyllaDBManager.h
+        src/controler/WsController.h 
+        src/websocket/WebSocketListener.cpp 
+        src/websocket/WebSocketListener.h 
+        src/client/RestClient.h
+        )
 target_link_libraries(${project_name}-exe ${project_name}-lib)
 add_dependencies(${project_name}-exe ${project_name}-lib)
 
