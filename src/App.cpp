@@ -56,22 +56,37 @@ void run(int argc, const char * argv[]) {
     
     /* Create MyController and add all of its endpoints to router */
     router->addController(std::make_shared<WsController>());
+
+    /* create servers */
+    OATPP_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders);
+
+    std::list<std::thread> threads;
+
+    for (auto& provider : *connectionProviders) {
+        threads.push_back(std::thread([provider]{
+            /* Get connection handler component */
+            OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler, "http");
+            oatpp::network::Server server(provider, connectionHandler);
+            server.run();
+        }));
+    }
+
+    for (auto& thread : threads) {
+        thread.join();
+    }
+        
+//     /* Get connection provider component */
+//     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, connectionProvider);
+//     /* Create server which takes provided TCP connections and passes them to HTTP connection handler */
+//     oatpp::network::Server server(connectionProvider, connectionHandler);
     
-    /* Get connection handler component */
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler, "http");
+//     /* Priny info about server port */
+// //    OATPP_LOGi("MyApp", "Server running on port {}", connectionProvider->getProperty("port").getData());
+//     auto port = (v_int16)oatpp::utils::Conversion::strToInt32(args.getNamedArgumentValue("--port", "8020" /* default value */));
+//     OATPP_LOGi("MyApp", "Server running on port {}", port)
     
-    /* Get connection provider component */
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, connectionProvider);
-    /* Create server which takes provided TCP connections and passes them to HTTP connection handler */
-    oatpp::network::Server server(connectionProvider, connectionHandler);
-    
-    /* Priny info about server port */
-//    OATPP_LOGi("MyApp", "Server running on port {}", connectionProvider->getProperty("port").getData());
-    auto port = (v_int16)oatpp::utils::Conversion::strToInt32(args.getNamedArgumentValue("--port", "8020" /* default value */));
-    OATPP_LOGi("MyApp", "Server running on port {}", port)
-    
-    /* Run server */
-    server.run();
+//     /* Run server */
+//     server.run();
     
 }
 

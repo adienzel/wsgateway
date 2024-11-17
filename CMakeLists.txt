@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-set(project_name vGeatway)
+set(project_name vGateway)
 
 project(${project_name})
 
@@ -35,6 +35,7 @@ add_executable(${project_name}-exe
         src/App.cpp
         src/AppComponent.h
         src/utilis/ipUtils.h
+        src/utilis/env.h
         src/ScyllaDBManager.h
         src/controler/WsController.h 
         src/websocket/WebSocketListener.cpp 
