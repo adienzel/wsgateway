@@ -16,7 +16,19 @@ RUN apt-get update && apt-get install -y cmake libssl-dev net-tools wireshark bu
       wget https://github.com/scylladb/cpp-driver/archive/refs/heads/master.zip && unzip master.zip && cd cpp-driver-master && \
       mkdir build && cd build && cmake .. && make install && cd .. && rm -rf build && cd ../ && rm master.zip && \
       rm -rf cpp-driver-master && \
-      git clone https://github.com/adienzel/wsgateway.git && cd wsgateway && mkdir build && cd build .. && cmake .. && make
+      git clone https://github.com/adienzel/wsgateway.git && cd wsgateway && mkdir build && cd build .. && pwd / > /dev/stdout &&  cmake .. && make
+
+
+# # RUN pwd / > /dev/stdout
+# # RUN echo "This is a test message" > /dev/stdout
+# # RUN ls -l / > /dev/stdout
+# # RUN ls -latr / > /dev/stdout
+
+# RUN  cp /root/app/wsgateway/build/vGateway-exe /root/.
+
+
+# RUN pwd / > /dev/stdout && ls -latr > /dev/stdout && ls -latr /root / > /dev/stdout
+
 
 FROM alpine:latest
 
@@ -26,15 +38,17 @@ FROM alpine:latest
 # Set the working directory in the final image
 WORKDIR /root/
 
+# RUN pwd / > /dev/stdout && ls -latr / > /dev/stdout
+
 # Copy the compiled Go binary from the build stage
-COPY --from=wsgatewaybuild vGateway-exe /root/.
+COPY --from=wsgatewaybuild /usr/src/app/wsgateway/build/vGateway-exe /usr/local/bin/.
 
 # Copy the custom network configuration script 
-COPY --from=wsgatewaybuild configure_network.sh /usr/local/bin/configure_network.sh
+COPY --from=wsgatewaybuild /usr/src/app/wsgateway/configure_network.sh /usr/local/bin/configure_network.sh
 # Copy the application start script
-COPY --from=wsgatewaybuild start_application.sh /usr/local/bin/start_application.sh
+COPY --from=wsgatewaybuild /usr/src/app/wsgateway/start_application.sh /usr/local/bin/start_application.sh
 # Make the scripts executable 
-RUN chmod +x /root/vGateway-exe && chmod +x /usr/local/bin/configure_network.sh && chmod +x /usr/local/bin/start_application.sh
+RUN chmod +x /usr/local/bin/vGateway-exe && chmod +x /usr/local/bin/configure_network.sh && chmod +x /usr/local/bin/start_application.sh
 # Set the entrypoint to the custom network configuration script 
 
 ENV WSS_PARTIAL_ADDRESS="127.0.0"
@@ -62,4 +76,3 @@ ENTRYPOINT ["/usr/local/bin/configure_network.sh"]
       
 
 
-# RUN mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make
