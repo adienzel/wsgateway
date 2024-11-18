@@ -14,7 +14,13 @@ include_directories(src
 add_library(${project_name}-lib
         src/AppComponent.h
         src/websocket/WebSocketListener.h
-        src/websocket/WebSocketListener.cpp src/utilis/ipUtils.h src/websocket/WebSocketComponents.h src/controler/WsController.h src/ScyllaDBManager.h src/client/RestClient.h)
+        src/websocket/WebSocketListener.cpp
+        src/utilis/ipUtils.h
+        src/utilis/env.h
+        src/websocket/WebSocketComponents.h
+        src/controler/WsController.h
+        src/ScyllaDBManager.h 
+        src/client/RestClient.h)
 
 ## link libs
 

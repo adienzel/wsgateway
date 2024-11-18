@@ -25,31 +25,33 @@ RUN apt-get update && apt-get install -y cmake libssl-dev net-tools wireshark bu
 # # RUN ls -latr / > /dev/stdout
 
 # RUN  cp /root/app/wsgateway/build/vGateway-exe /root/.
+RUN chmod 644 /usr/src/app/wsgateway/build/vGateway-exe
 
+RUN ls -l /usr/src/app/wsgateway/build  / > /dev/stdout
 
 # RUN pwd / > /dev/stdout && ls -latr > /dev/stdout && ls -latr /root / > /dev/stdout
 
-
+# ENTRYPOINT [ "/bin/bash" ]
 FROM alpine:latest
 
 # Install any necessary dependencies (if required by your Go binary)
 # RUN apk add --no-cache ca-certificates
-      
-# Set the working directory in the final image
-WORKDIR /root/
 
-# RUN pwd / > /dev/stdout && ls -latr / > /dev/stdout
-
+RUN mkdir -p /wsgateway
+     
 # Copy the compiled Go binary from the build stage
-COPY --from=wsgatewaybuild /usr/src/app/wsgateway/build/vGateway-exe /usr/local/bin/.
+COPY --from=wsgatewaybuild /usr/src/app/wsgateway/build/vGateway-exe /wsgateway/vGateway-exe
 
 # Copy the custom network configuration script 
-COPY --from=wsgatewaybuild /usr/src/app/wsgateway/configure_network.sh /usr/local/bin/configure_network.sh
+COPY --from=wsgatewaybuild /usr/src/app/wsgateway/network-config.sh /wsgateway/network-config.sh
 # Copy the application start script
-COPY --from=wsgatewaybuild /usr/src/app/wsgateway/start_application.sh /usr/local/bin/start_application.sh
+COPY --from=wsgatewaybuild /usr/src/app/wsgateway/start_application.sh /wsgateway/start_application.sh
 # Make the scripts executable 
-RUN chmod +x /usr/local/bin/vGateway-exe && chmod +x /usr/local/bin/configure_network.sh && chmod +x /usr/local/bin/start_application.sh
+RUN chmod +x /wsgateway/vGateway-exe && chmod +x /wsgateway/network-config.sh && chmod +x /wsgateway/start_application.sh
 # Set the entrypoint to the custom network configuration script 
+
+# Set the working directory in the final image
+WORKDIR /root/
 
 ENV WSS_PARTIAL_ADDRESS="127.0.0"
 ENV WSS_START_ADDRESS=3
@@ -69,9 +71,11 @@ ENV WSS_SCYLLADB_REPLICATION_FACTOR=1
 ENV WSS_SCYLLADB_STRATEGY="SimpleStrategy"
 ENV WSS_SCYLLADB_TABLE_NAME="vehicles"
 
+RUN apk update && apk add bash iproute2
 
-ENTRYPOINT ["/usr/local/bin/configure_network.sh"]
-      
+# ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT ["/wsgateway/network-config.sh"]
+
       
       
 
