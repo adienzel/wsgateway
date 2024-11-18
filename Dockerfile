@@ -51,7 +51,7 @@ RUN chmod +x /wsgateway/vGateway-exe && chmod +x /wsgateway/network-config.sh &&
 # Set the entrypoint to the custom network configuration script 
 
 # Set the working directory in the final image
-WORKDIR /root/
+WORKDIR /wsgateway/
 
 ENV WSS_PARTIAL_ADDRESS="127.0.0"
 ENV WSS_START_ADDRESS=3
@@ -74,7 +74,7 @@ ENV WSS_SCYLLADB_TABLE_NAME="vehicles"
 RUN apk update && apk add bash iproute2
 
 # ENTRYPOINT [ "/bin/bash" ]
-ENTRYPOINT ["/wsgateway/network-config.sh"]
+ENTRYPOINT ["./network-config.sh"]
 
       
       

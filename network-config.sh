@@ -11,4 +11,4 @@ for i in $(seq $START $STOP); do
 done
 
 # Start the application
-exec /wsgateway/start_application.sh
+exec ./start_application.sh
