@@ -25,9 +25,9 @@ RUN apt-get update && apt-get install -y cmake libssl-dev net-tools wireshark bu
 # # RUN ls -latr / > /dev/stdout
 
 # RUN  cp /root/app/wsgateway/build/vGateway-exe /root/.
-RUN chmod 644 /usr/src/app/wsgateway/build/vGateway-exe
+# RUN chmod 644 /usr/src/app/wsgateway/build/vGateway-exe
 
-RUN ls -l /usr/src/app/wsgateway/build  / > /dev/stdout
+# RUN ls -l /usr/src/app/wsgateway/build  / > /dev/stdout
 
 # RUN pwd / > /dev/stdout && ls -latr > /dev/stdout && ls -latr /root / > /dev/stdout
 
