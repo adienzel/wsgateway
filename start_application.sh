@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Start your application
-./vGateway-exe
+exec /wsgateway/vGateway-exe
