@@ -15,8 +15,9 @@ RUN apt-get update && apt-get install -y cmake libssl-dev net-tools wireshark bu
       sh autogen.sh && ./configure && make install && cd .. && rm v1.x.zip && rm -rf libuv-1.x && \
       wget https://github.com/scylladb/cpp-driver/archive/refs/heads/master.zip && unzip master.zip && cd cpp-driver-master && \
       mkdir build && cd build && cmake .. && make install && cd .. && rm -rf build && cd ../ && rm master.zip && \
-      rm -rf cpp-driver-master && \
-      git clone https://github.com/adienzel/wsgateway.git && cd wsgateway && mkdir build && cd build .. && pwd / > /dev/stdout &&  cmake .. && make
+      rm -rf cpp-driver-master
+
+RUN git clone https://github.com/adienzel/wsgateway.git && cd wsgateway && mkdir build && cd build .. && pwd / > /dev/stdout &&  cmake .. && make
 
 
 # # RUN pwd / > /dev/stdout
