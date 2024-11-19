@@ -3,4 +3,4 @@
 # Start your application
 ls -latr
 
-exec /wsgateway/vGateway-exe
+./vGateway-exe

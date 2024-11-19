@@ -1,7 +1,7 @@
 FROM gcc:latest AS wsgatewaybuild
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y cmake libssl-dev net-tools wireshark build-essential git curl wget openssl && \
+RUN apt-get update && apt-get install -y cmake libssl-dev net-tools wireshark build-essential git curl wget openssl iproute2 && \
       git clone https://github.com/oatpp/oatpp.git && \
       cd oatpp && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make install && \
       cd .. && rm -rf build && cd .. && \

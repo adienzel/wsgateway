@@ -4,6 +4,8 @@
 #include "oatpp/network/Server.hpp"
 
 #include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
 
 
 void run(int argc, const char * argv[]) {
@@ -63,12 +65,23 @@ void run(int argc, const char * argv[]) {
     std::list<std::thread> threads;
 
     for (auto& provider : *connectionProviders) {
-        threads.push_back(std::thread([provider]{
-            /* Get connection handler component */
-            OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler, "http");
-            oatpp::network::Server server(provider, connectionHandler);
-            server.run();
-        }));
+        try {
+            threads.push_back(std::thread([provider]{
+                /* Get connection handler component */
+                try {
+                    auto tid = gettid();
+                    OATPP_LOGi(__func__, "thread {} is running", tid)
+                    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler, "http");
+                    oatpp::network::Server server(provider, connectionHandler);
+                    OATPP_LOGi(__func__, "thread {} is running, line = {}", tid, __LINE__)
+                    server.run();
+                } catch (...) {
+                    OATPP_LOGe(__func__, "thread fail ")
+                }
+            }));
+        } catch (...) {
+            OATPP_LOGe(__func__, "thread fail ")
+        }
     }
 
     for (auto& thread : threads) {
