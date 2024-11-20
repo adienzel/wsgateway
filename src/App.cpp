@@ -11,27 +11,22 @@
 
 void run(int argc, const char * argv[]) {
 //void run(const oatpp::base::CommandLineArguments& args) {
-    auto args = oatpp::base::CommandLineArguments(argc, argv);
+    //auto args = oatpp::base::CommandLineArguments(argc, argv);
     /* Register Components in scope of run() method */
-    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::base::CommandLineArguments>, m_cmdArgs)([&] {
-        return std::make_shared<oatpp::base::CommandLineArguments>(argc, argv);
-    }());
+    OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
+    // OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::base::CommandLineArguments>, m_cmdArgs)([&] {
+    //     return std::make_shared<oatpp::base::CommandLineArguments>(argc, argv);
+    // }());
     
     //OATPP_LOGd(__func__, " {}", __LINE__)
     AppComponent components;
     //AppComponent components(argc, argv);
     //OATPP_LOGd(__func__, " {}", __LINE__)
     
-    auto addr = args.getNamedArgumentValue("--addr", "127.0.0.1");
-    //OATPP_LOGd(__func__, " {}", __LINE__)
-    if (addr == nullptr && !isValidIPv4(addr)) {
-        OATPP_LOGe(__func__, "bad/empty address parameter")
-        exit(-1);
-    }
     //OATPP_LOGd(__func__, " {}", __LINE__)
     OATPP_COMPONENT(std::shared_ptr<ScyllaDBManager>, dbManager, "scyllaDBManager");
     //OATPP_LOGd(__func__, " {}", __LINE__)
-    if (!dbManager->connect(addr)) {
+    if (!dbManager->connect(m_cmdArgs->scylladb_address)) {
         OATPP_LOGe(__func__, "Error connecting to scylaDB")
         exit(-1);
     }

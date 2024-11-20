@@ -61,10 +61,6 @@ struct Config {
         number_of_timer_threads =
                (int32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_TIMER_THREADS", 1);
     
-        scylladb_address = 
-               EnvUtils::getEnvString("WSS_SCYLLA_DB_ADDRESS", "192.168.3.2");
-        scylladb_port = 
-               EnvUtils::getEnvString("WSS_SCYLLADB_PORT", "9060");
         scylladb_keyspace_name = 
                EnvUtils::getEnvString("WSS_SCYLLADB_KEYSPACE_NAME", "vin");
         scylladb_replication_factor =
