@@ -171,10 +171,9 @@ public:
                                                     listening_port,
                                                     m_cmdArgs->network_family_type));
             providers->push_back(provider);
-        } catch (...) {
-            OATPP_LOGe(__func__, "IP address is not IPv4 {}:{} address ", ip_addr, listening_port)
+        } catch (const std::exception& e) {
+            OATPP_LOGe(__func__, "thread fail while trying to set connection {}:{} error : {}", ip_addr, listening_port, e.what())
             exit(-1);
-
         }
     }
     return providers;
