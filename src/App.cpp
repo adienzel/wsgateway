@@ -6,6 +6,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/types.h>
+#include <exception>
 
 
 void run(int argc, const char * argv[]) {
@@ -79,8 +80,8 @@ void run(int argc, const char * argv[]) {
                     OATPP_LOGe(__func__, "thread fail ")
                 }
             }));
-        } catch (...) {
-            OATPP_LOGe(__func__, "thread fail ")
+        } catch (const std::exception& e) {
+            OATPP_LOGe(__func__, "thread fail {}", e.what())
         }
     }
 

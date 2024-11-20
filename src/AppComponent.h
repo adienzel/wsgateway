@@ -62,7 +62,7 @@ struct Config {
                (int32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_TIMER_THREADS", 1);
     
         scylladb_address = 
-               EnvUtils::getEnvString("WSS_SCYLLA_DB_ADDRESS", "127.0.0.1");
+               EnvUtils::getEnvString("WSS_SCYLLA_DB_ADDRESS", "192.168.3.2");
         scylladb_port = 
                EnvUtils::getEnvString("WSS_SCYLLADB_PORT", "9060");
         scylladb_keyspace_name = 
@@ -256,14 +256,18 @@ public:
     
     OATPP_CREATE_COMPONENT(std::shared_ptr<ScyllaDBManager>, dbManger)("scyllaDBManager", [] {
         //OATPP_LOGd(__func__, " {}", __LINE__)
-        return std::make_shared<ScyllaDBManager>("127.0.0.1");
+        OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
+        auto addr = m_cmdArgs->scylladb_address;
+        return std::make_shared<ScyllaDBManager>(addr);
     }());
     
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::web::client::RequestExecutor>, requestExcecutor)("clientExcecutor", [this] {
-        OATPP_COMPONENT(std::shared_ptr<oatpp::base::CommandLineArguments>, m_cmdArgs);
+        //OATPP_COMPONENT(std::shared_ptr<oatpp::base::CommandLineArguments>, m_cmdArgs);
         //OATPP_LOGd(__func__, " {}", __LINE__)
-        auto port = (v_int16) oatpp::utils::Conversion::strToInt32(m_cmdArgs->getNamedArgumentValue("--http-rest-port", "9070"));
-        auto addr = m_cmdArgs->getNamedArgumentValue("--http-rest-addr", "127.0.0.1");
+        OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
+        char* tmp;
+        auto port = (v_int16)strtol(m_cmdArgs->http_request_port.c_str(), &tmp, 10);
+        auto addr = m_cmdArgs->http_request_address;
         oatpp::network::Address address(addr, port);
         auto connectionProvider = std::make_shared<oatpp::network::tcp::client::ConnectionProvider>(address);
         return std::make_shared<oatpp::web::client::HttpRequestExecutor>(connectionProvider);

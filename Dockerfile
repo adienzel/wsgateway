@@ -33,7 +33,7 @@ RUN git clone https://github.com/adienzel/wsgateway.git && cd wsgateway && mkdir
 # RUN pwd / > /dev/stdout && ls -latr > /dev/stdout && ls -latr /root / > /dev/stdout
 
 # ENTRYPOINT [ "/bin/bash" ]
-FROM alpine:latest
+FROM ubuntu:latest
 
 # Install any necessary dependencies (if required by your Go binary)
 # RUN apk add --no-cache ca-certificates
@@ -50,6 +50,16 @@ COPY --from=wsgatewaybuild /usr/src/app/wsgateway/start_application.sh /wsgatewa
 # Make the scripts executable 
 RUN chmod +x /wsgateway/vGateway-exe && chmod +x /wsgateway/network-config.sh && chmod +x /wsgateway/start_application.sh
 # Set the entrypoint to the custom network configuration script 
+
+
+#copy all needed libraries 
+COPY --from=wsgatewaybuild /usr/local/lib64/libatomic.so.1.2.0 /usr/lib/libatomic.so.1.2.0
+COPY --from=wsgatewaybuild /usr/local/lib64/libatomic.so.1 /usr/lib/libatomic.so.1
+COPY --from=wsgatewaybuild /usr/local/lib/x86_64-linux-gnu/libscylla-cpp-driver.so.2 /usr/lib/libscylla-cpp-driver.so.2
+COPY --from=wsgatewaybuild /usr/local/lib64/libstdc++.so.6.0.33 /usr/lib/libstdc++.so.6.0.33
+COPY --from=wsgatewaybuild /usr/local/lib64/libstdc++.so.6 /usr/lib/libstdc++.so
+COPY --from=wsgatewaybuild /usr/local/lib/libuv.so.1.0.0 /usr/lib/libuv.so.1.0.0 
+COPY --from=wsgatewaybuild /usr/local/lib/libuv.so.1 /usr/lib/libuv.so.1
 
 # Set the working directory in the final image
 WORKDIR /wsgateway/
@@ -72,12 +82,17 @@ ENV WSS_SCYLLADB_REPLICATION_FACTOR=1
 ENV WSS_SCYLLADB_STRATEGY="SimpleStrategy"
 ENV WSS_SCYLLADB_TABLE_NAME="vehicles"
 
-RUN apk update && apk add bash iproute2
+#alpine 
+# RUN apk update && apk add bash iproute2
+# RUN apk add --no-cache --virtual=.build-dependencies wget ca-certificates
+# RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+# RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk
+# RUN apk add --force-overwrite glibc-2.35-r1.apk
+# RUN apk del .build-dependencies 
+# RUN rm -rf /var/cache/apk/*
 
 # ENTRYPOINT [ "/bin/bash" ]
-ENTRYPOINT ["./network-config.sh"]
-
-      
+ENTRYPOINT ["./network-config.sh"] 
       
 
 
