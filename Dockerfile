@@ -38,7 +38,8 @@ FROM ubuntu:latest
 # Install any necessary dependencies (if required by your Go binary)
 # RUN apk add --no-cache ca-certificates
 
-RUN mkdir -p /wsgateway
+RUN mkdir -p /wsgateway 
+RUN apt update && apt install -y net-tools wireshark build-essential git curl wget openssl iproute2
      
 # Copy the compiled Go binary from the build stage
 COPY --from=wsgatewaybuild /usr/src/app/wsgateway/build/vGateway-exe /wsgateway/vGateway-exe
@@ -58,16 +59,14 @@ COPY --from=wsgatewaybuild /usr/local/lib64/libatomic.so.1 /usr/lib/libatomic.so
 COPY --from=wsgatewaybuild /usr/local/lib/x86_64-linux-gnu/libscylla-cpp-driver.so.2 /usr/lib/libscylla-cpp-driver.so.2
 COPY --from=wsgatewaybuild /usr/local/lib64/libstdc++.so.6.0.33 /usr/lib/libstdc++.so.6.0.33
 COPY --from=wsgatewaybuild /usr/local/lib64/libstdc++.so.6 /usr/lib/libstdc++.so
-COPY --from=wsgatewaybuild /usr/local/lib/libuv.so.1.0.0 /usr/lib/libuv.so.1.0.0 
-COPY --from=wsgatewaybuild /usr/local/lib/libuv.so.1 /usr/lib/libuv.so.1
+COPY --from=wsgWSS_SCYLLA_DB_ADDRESSatewaybuild /usr/local/lib/libuv.so.1 /usr/lib/libuv.so.1
 
 # Set the working directory in the final image
 WORKDIR /wsgateway/
 
-ENV WSS_PARTIAL_ADDRESS="192.168.1"
-ENV WSS_START_ADDRESS=3
-ENV WSS_END_ADDRESS=63
-ENV WSS_PORT="8020"
+ENV WSS_ADDRESS="127.0.0.1"
+ENV WSS_NUMBER_OF_PORTS=24
+ENV WSS_BASE_PORT="8020"
 ENV WSS_HTTP_REQUEST_ADDRESS="127.0.0.1"
 ENV WSS_HTTP_REQUEST_PORT="8992"
 
@@ -75,11 +74,14 @@ ENV WSS_NUMBER_OF_WORKER_THREADS=4
 ENV WSS_NUMBER_OF_IO_THREADS=4
 ENV WSS_NUMBER_OF_TIMER_THREADS=1      
 
-ENV WSS_SCYLLA_DB_ADDRESS="192.168.3.2"
-ENV WSS_SCYLLADB_PORT="9060"
+# list of server that can be connected
+ENV WSS_SCYLLA_DB_ADDRESS="172.17.0.2"
+# ENV WSS_SCYLLA_DB_ADDRESS="172.17.0.2,172.17.0.3,172.17.0.4"
+ENV WSS_SCYLLADB_PORT="9042"
 ENV WSS_SCYLLADB_KEYSPACE_NAME="vin"
-ENV WSS_SCYLLADB_REPLICATION_FACTOR=1
-ENV WSS_SCYLLADB_STRATEGY="SimpleStrategy"
+ENV WSS_SCYLLADB_REPLICATION_FACTOR=3
+# default to SimpleStrategy for testing environment but in real  'NetworkTopologyStrategy' is prefered
+ENV WSS_SCYLLADB_STRATEGY="SimpleStrategy" 
 ENV WSS_SCYLLADB_TABLE_NAME="vehicles"
 
 #alpine 
@@ -91,8 +93,8 @@ ENV WSS_SCYLLADB_TABLE_NAME="vehicles"
 # RUN apk del .build-dependencies 
 # RUN rm -rf /var/cache/apk/*
 
-# ENTRYPOINT [ "/bin/bash" ]
-ENTRYPOINT ["./network-config.sh"] 
+ENTRYPOINT [ "/bin/bash" ]
+# ENTRYPOINT ["./network-config.sh"] 
       
 
 

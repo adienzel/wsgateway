@@ -15,39 +15,30 @@ void run(int argc, const char * argv[]) {
     /* Register Components in scope of run() method */
     try {
         AppComponent components;
-        OATPP_LOGd(__func__, " {}", __LINE__)
         OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
-        OATPP_LOGd(__func__, " {}", __LINE__)
-        // OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::base::CommandLineArguments>, m_cmdArgs)([&] {
-        //     return std::make_shared<oatpp::base::CommandLineArguments>(argc, argv);
-        // }());
-        
-        //OATPP_LOGd(__func__, " {}", __LINE__)
-        
-        //AppComponent components(argc, argv);
-        //OATPP_LOGd(__func__, " {}", __LINE__)
         
         //OATPP_LOGd(__func__, " {}", __LINE__)
         OATPP_COMPONENT(std::shared_ptr<ScyllaDBManager>, dbManager, "scyllaDBManager");
         //OATPP_LOGd(__func__, " {}", __LINE__)
         if (!dbManager->connect(m_cmdArgs->scylladb_address)) {
+
             OATPP_LOGe(__func__, "Error connecting to scylaDB")
             exit(-1);
         }
-        std::string keyspace = "VIN";
-        if (!dbManager->create_keyspace(keyspace, "SimpleStrategy", 1)) {
-            OATPP_LOGe(__func__, "Error creating keyspace {}", keyspace)
+        if (!dbManager->create_keyspace(m_cmdArgs->scylladb_keyspace_name,
+                                        m_cmdArgs->scylladb_strategy,
+                                        m_cmdArgs->scylladb_replication_factor)) {
+            OATPP_LOGe(__func__, "Error creating keyspace {}", m_cmdArgs->scylladb_keyspace_name)
             exit(-1);
         }
     
 
-        std::string table = "vehicles"; 
-        if (!dbManager->create_table(table)) {
-            OATPP_LOGe(__func__, "Error creating table in keyspace {}", keyspace)
+        if (!dbManager->create_table(m_cmdArgs->scylladb_table_name)) {
+            OATPP_LOGe(__func__, "Error creating table in keyspace {}", m_cmdArgs->scylladb_keyspace_name)
             exit(-1);
         }
         if (!dbManager->create_materialized_view()) {
-            OATPP_LOGe(__func__, "Error creating matirialized view in keyspace {}", keyspace)
+            OATPP_LOGe(__func__, "Error creating matirialized view in keyspace {}", m_cmdArgs->scylladb_keyspace_name)
             exit(-1);
         }
         
@@ -70,10 +61,10 @@ void run(int argc, const char * argv[]) {
                     /* Get connection handler component */
                     try {
                         auto tid = gettid();
-                        OATPP_LOGi(__func__, "thread {} is running", tid)
+                        // OATPP_LOGi(__func__, "thread {} is running", tid)
                         OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler, "http");
                         oatpp::network::Server server(provider, connectionHandler);
-                        OATPP_LOGi(__func__, "thread {} is running, line = {}", tid, __LINE__)
+                        // OATPP_LOGi(__func__, "thread {} is running, line = {}", tid, __LINE__)
                         server.run();
                     } catch (...) {
                         OATPP_LOGe(__func__, "thread fail ")

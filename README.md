@@ -1,5 +1,26 @@
 # WebSocket Gateway
 
+## reqired
+intall scyladb
+,,,
+docker pull scylladb/scylla
+docker run --name scylla-node1 --cpus=2 -d scylladb/scylla
+docker run --name scylla-node2 --cpus=2 -d scylladb/scylla
+docker run --name scylla-node3 --cpus=2 -d scylladb/scylla
+
+,,,
+
+after that use the script findScylladbIP.sh and set the scyla server values
+
+```
+./findScylladbIP.sh
+in the docker run command of the gatway add -e WSS_SCYLLA_DB_ADDRESS="the reult from the script"
+or without docker 
+export WSS_SCYLLA_DB_ADDRESS="the reult from the script"
+
+```
+
+
 ## instalation
 
 ```

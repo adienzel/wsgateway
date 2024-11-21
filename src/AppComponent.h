@@ -28,54 +28,41 @@
 
 struct Config {
     Config() {
-        partial_address = EnvUtils::getEnvString("WSS_PARTIAL_ADDRESS", "192.168.1");
+        server_address   = EnvUtils::getEnvString("WSS_ADDRESS", "0.0.0.0");
         
-        // cppcheck-suppress syntaxError
-        if (auto found = partial_address.find("."); found == std::string::npos) {
-            if (found = partial_address.find("::"); found == std::string::npos) {
-                OATPP_LOGe(__func__, "WSS_PARTIAL_ADDRESS {} is not leagal prefix of IP addrtess, Please use leagal ip v4 or v6 values", partial_address)
-                exit(-1);
-            } else {
-                network_family_type = oatpp::network::Address::Family::IP_6;
-            }
-        }
-        if (network_family_type == oatpp::network::Address::Family::IP_6 &&
-             partial_address.substr(partial_address.size() - 2) == "::") {
-                partial_address.erase(partial_address.size() - 2);
-        } else if (network_family_type == oatpp::network::Address::Family::IP_4 &&
-             partial_address.back() == '.') {
-                partial_address.pop_back();
-        }
-    
-
-        start_address   = (int8_t)EnvUtils::getEnvInt("WSS_START_ADDRESS", 3);
-        end_address = EnvUtils::getEnvInt("WSS_END_ADDRESS", 24);
-        port = EnvUtils::getEnvString("WSS_PORT", "8020");
+        numjber_of_ports = (uint8_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_PORTS", 24);
+        base_port = EnvUtils::getEnvInt("WSS_PORT", 8020);
         http_request_address = EnvUtils::getEnvString("WSS_HTTP_REQUEST_ADDRESS", "127.0.0.1");
         http_request_port = EnvUtils::getEnvString("WSS_HTTP_REQUEST_PORT", "8992");
 
+        // OATPP config
         number_of_worker_threads = 
                (int32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_WORKER_THREADS", 24);
         number_of_io_threads = 
                (int32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_IO_THREADS", 24);
         number_of_timer_threads =
                (int32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_TIMER_THREADS", 1);
-    
+
+        //scylladb
+        scylladb_address = 
+               EnvUtils::getEnvString("WSS_SCYLLA_DB_ADDRESS", "172.17.0.2");
+        scylladb_port= 
+               EnvUtils::getEnvString("WSS_SCYLLADB_PORT", "9042");
+
         scylladb_keyspace_name = 
                EnvUtils::getEnvString("WSS_SCYLLADB_KEYSPACE_NAME", "vin");
         scylladb_replication_factor =
-               (int32_t)EnvUtils::getEnvInt("WSS_SCYLLADB_REPLICATION_FACTOR", 1);
+               (int32_t)EnvUtils::getEnvInt("WSS_SCYLLADB_REPLICATION_FACTOR", 3);
         scylladb_strategy = 
                EnvUtils::getEnvString("WSS_SCYLLADB_STRATEGY", "SimpleStrategy");
         scylladb_table_name = 
                EnvUtils::getEnvString("WSS_SCYLLADB_TABLE_NAME", "vehicles");
     }
 
-    std::string partial_address;
+    std::string server_address;
     oatpp::network::Address::Family network_family_type = oatpp::network::Address::Family::IP_4; 
-    int8_t start_address;
-    int8_t end_address;
-    std::string port;
+    int8_t numjber_of_ports;
+    uint16_t base_port;
     std::string http_request_address;
     std::string http_request_port;
 
@@ -139,40 +126,30 @@ public:
   OATPP_CREATE_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders)([this] {
     auto providers = std::make_shared<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>();
     OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
-
-    uint16_t start_class_c_addr = m_cmdArgs->start_address;
-    uint16_t end_class_c_addr = m_cmdArgs->end_address;
-    std::string base_ip = m_cmdArgs->partial_address;
-
-    char* tmp;
-    v_uint16 listening_port = strtol(m_cmdArgs->port.c_str(), &tmp,  10);
-    
-    std::string ip_addr = "";
-    
-    for(v_uint16 i = start_class_c_addr; i < end_class_c_addr + 1; i++) {
-        if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4) {
-            ip_addr = base_ip + "." + std::to_string(i);
-        } else {
-            ip_addr = base_ip + "::" + std::to_string(i); 
-        }
+ 
+    for(v_uint8 i = 0; i < m_cmdArgs->numjber_of_ports; i++) {
+        // if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4) {
+        //     ip_addr = base_ip + "." + std::to_string(i);
+        // } else {
+        //     ip_addr = base_ip + "::" + std::to_string(i); 
+        // }
         
-        if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_6 && !is_valid_ipv6(ip_addr)) {
-            // cppcheck-suppress unknownMacro
-            OATPP_LOGe(TAG, "IP address is not IPv6 {} address", ip_addr)
-            exit(-1);
-        } else if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4 && !isValidIPv4(ip_addr)) {
-            OATPP_LOGe(TAG, "IP address is not IPv4 {} address", ip_addr)
-            exit(-1);
-        }
+        // if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_6 && !is_valid_ipv6(ip_addr)) {
+        //     // cppcheck-suppress unknownMacro
+        //     OATPP_LOGe(TAG, "IP address is not IPv6 {} address", ip_addr)
+        //     exit(-1);
+        // } else if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4 && !isValidIPv4(ip_addr)) {
+        //     OATPP_LOGe(TAG, "IP address is not IPv4 {} address", ip_addr)
+        //     exit(-1);
+        // }
         try {
-            OATPP_LOGd("AppComponent", "Connection Provider for address: {}:{}", ip_addr, listening_port)
+            OATPP_LOGd("AppComponent", "Connection Provider for address: {}:{}", m_cmdArgs->server_address, m_cmdArgs->base_port + i)
             auto provider = oatpp::network::tcp::server::ConnectionProvider::createShared(
-                            oatpp::network::Address(ip_addr,
-                                                    listening_port,
-                                                    m_cmdArgs->network_family_type));
+                            oatpp::network::Address(m_cmdArgs->server_address,
+                                                    m_cmdArgs->base_port + i)); //TODO     handle dual stack 
             providers->push_back(provider);
         } catch (const std::exception& e) {
-            OATPP_LOGe(__func__, "thread fail while trying to set connection {}:{} error : {}", ip_addr, listening_port, e.what())
+            OATPP_LOGe(__func__, "thread fail while trying to set connection, error :", e.what());
             exit(-1);
         }
     }
