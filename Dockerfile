@@ -39,7 +39,6 @@ FROM ubuntu:latest
 # RUN apk add --no-cache ca-certificates
 
 RUN mkdir -p /wsgateway 
-RUN apt update && apt install -y net-tools wireshark build-essential git curl wget openssl iproute2
      
 # Copy the compiled Go binary from the build stage
 COPY --from=wsgatewaybuild /usr/src/app/wsgateway/build/vGateway-exe /wsgateway/vGateway-exe
@@ -48,8 +47,12 @@ COPY --from=wsgatewaybuild /usr/src/app/wsgateway/build/vGateway-exe /wsgateway/
 COPY --from=wsgatewaybuild /usr/src/app/wsgateway/network-config.sh /wsgateway/network-config.sh
 # Copy the application start script
 COPY --from=wsgatewaybuild /usr/src/app/wsgateway/start_application.sh /wsgateway/start_application.sh
+# copy the find scylladb script
+COPY --from=wsgatewaybuild /usr/src/app/wsgateway/findScylladbIP.sh /wsgateway/findScylladbIP.sh
 # Make the scripts executable 
-RUN chmod +x /wsgateway/vGateway-exe && chmod +x /wsgateway/network-config.sh && chmod +x /wsgateway/start_application.sh
+RUN chmod +x /wsgateway/vGateway-exe && chmod +x /wsgateway/network-config.sh && chmod +x /wsgateway/start_application.sh && \
+      chmod +x /wsgateway/findScylladbIP.sh && \
+      apt update && apt install -y net-tools wireshark build-essential git curl wget openssl iproute2
 # Set the entrypoint to the custom network configuration script 
 
 
@@ -59,7 +62,7 @@ COPY --from=wsgatewaybuild /usr/local/lib64/libatomic.so.1 /usr/lib/libatomic.so
 COPY --from=wsgatewaybuild /usr/local/lib/x86_64-linux-gnu/libscylla-cpp-driver.so.2 /usr/lib/libscylla-cpp-driver.so.2
 COPY --from=wsgatewaybuild /usr/local/lib64/libstdc++.so.6.0.33 /usr/lib/libstdc++.so.6.0.33
 COPY --from=wsgatewaybuild /usr/local/lib64/libstdc++.so.6 /usr/lib/libstdc++.so
-COPY --from=wsgWSS_SCYLLA_DB_ADDRESSatewaybuild /usr/local/lib/libuv.so.1 /usr/lib/libuv.so.1
+COPY --from=wsgatewaybuild /usr/local/lib/libuv.so.1 /usr/lib/libuv.so.1
 
 # Set the working directory in the final image
 WORKDIR /wsgateway/
