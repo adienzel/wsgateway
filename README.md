@@ -1,16 +1,31 @@
 # WebSocket Gateway
 
-## reqired
-intall scyladb
+## intall scyladb
+
 ,,,
+
 docker pull scylladb/scylla
-docker run --name scylla-node1 --cpus=2 -d scylladb/scylla
-docker run --name scylla-node2 --cpus=2 -d scylladb/scylla
-docker run --name scylla-node3 --cpus=2 -d scylladb/scylla
+
+docker run --name scylla-node1 --cpus=2 -e SCYLLA_CLUSTER_NAME="ws-test-cluster" -d scylladb/scylla
+
+docker run --name scylla-node2 --cpus=2 -e SCYLLA_CLUSTER_NAME="ws-test-cluster" -d scylladb/scylla
+
+docker run --name scylla-node3 --cpus=2 -e SCYLLA_CLUSTER_NAME="ws-test-cluster" -d scylladb/scylla
+
+
 
 ,,,
 
 after that use the script findScylladbIP.sh and set the scyla server values
+
+if we have the ip address of the continers we want to run then we can use also
+
+```
+   --ip 192.168.3.2 -e SCYLLA_SEEDS="192.168.3.2,192.168.3.3,192.168.3.4"
+
+```
+
+where we need to add the real ip of the node and to support the SCYLLA_SEED to recognize at least the 3 nodes we started (in more nodes running no need to extra ip's to the seed)
 
 ```
 ./findScylladbIP.sh

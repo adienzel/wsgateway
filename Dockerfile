@@ -84,7 +84,7 @@ ENV WSS_SCYLLADB_PORT="9042"
 ENV WSS_SCYLLADB_KEYSPACE_NAME="vin"
 ENV WSS_SCYLLADB_REPLICATION_FACTOR=3
 # default to SimpleStrategy for testing environment but in real  'NetworkTopologyStrategy' is prefered
-ENV WSS_SCYLLADB_STRATEGY="SimpleStrategy" 
+ENV WSS_SCYLLADB_STRATEGY="NetworkTopologyStrategy" 
 ENV WSS_SCYLLADB_TABLE_NAME="vehicles"
 
 #alpine 
