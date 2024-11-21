@@ -31,7 +31,7 @@ where we need to add the real ip of the node and to support the SCYLLA_SEED to r
 ./findScylladbIP.sh
 in the docker run command of the gatway add -e WSS_SCYLLA_DB_ADDRESS="the reult from the script"
 or without docker 
-export WSS_SCYLLA_DB_ADDRESS="the reult from the script"
+export WSS_SCYLLA_DB_ADDRESS="the result from the script"
 
 ```
 
