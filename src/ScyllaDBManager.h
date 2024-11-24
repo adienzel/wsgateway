@@ -43,7 +43,7 @@ public:
         std::string query = "CREATE KEYSPACE IF NOT EXISTS " + m_keyspace +
                             " WITH replication = {'class': '" + strategy +
                             "', 'replication_factor': " + 
-                            std::to_string(replication_factor) + "};";
+                            std::to_string(replication_factor) + "} AND TABLETS = {'enabled': false};";
         return execute_query(query);
     }
     
