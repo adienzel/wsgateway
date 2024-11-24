@@ -62,18 +62,18 @@ std::tuple<std::string, std::string, int> getHostAndIP() {
 
     hostname = gethostname(host, sizeof(host));
     if (hostname == -1) {
-        return std::make_tuple("gethostname", "", -1);
+        return std::make_tuple(std::strerror(errno), "", -1);
     }
 
     host_entry = gethostbyname(host);
     if (host_entry == NULL) {
-        return std::make_tuple("gethostbyname", "", -1);
+        return std::make_tuple(std::strerror(errno), "", -1);
     }
 
     ip = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0]));
     if (ip == NULL) {
         perror("inet_ntoa");
-        return std::make_tuple("inet_ntoa", "", -1);
+        return std::make_tuple(std::strerror(errno), "", -1);
     }
 
     return std::make_tuple(host, ip, 0);

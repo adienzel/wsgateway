@@ -52,7 +52,7 @@ COPY --from=wsgatewaybuild /usr/src/app/wsgateway/findScylladbIP.sh /wsgateway/f
 # Make the scripts executable 
 RUN chmod +x /wsgateway/vGateway-exe && chmod +x /wsgateway/network-config.sh && chmod +x /wsgateway/start_application.sh && \
       chmod +x /wsgateway/findScylladbIP.sh && \
-      apt update && apt install -y net-tools wireshark build-essential git curl wget openssl iproute2
+      apt update && apt install -y net-tools wireshark build-essential git curl wget openssl iproute2 libstdc++
 # Set the entrypoint to the custom network configuration script 
 
 
@@ -67,7 +67,7 @@ COPY --from=wsgatewaybuild /usr/local/lib/libuv.so.1 /usr/lib/libuv.so.1
 # Set the working directory in the final image
 WORKDIR /wsgateway/
 
-ENV WSS_ADDRESS="127.0.0.1"
+ENV WSS_ADDRESS="0.0.0.0"
 ENV WSS_NUMBER_OF_PORTS=24
 ENV WSS_BASE_PORT="8020"
 ENV WSS_HTTP_REQUEST_ADDRESS="127.0.0.1"
@@ -88,7 +88,7 @@ ENV WSS_SCYLLADB_STRATEGY="NetworkTopologyStrategy"
 ENV WSS_SCYLLADB_TABLE_NAME="vehicles"
 
 #alpine 
-# RUN apk update && apk add bash iproute2
+# RUN apk update && apk add bash iproute2 && apk add --no-cache libstdc++
 # RUN apk add --no-cache --virtual=.build-dependencies wget ca-certificates
 # RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
 # RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk

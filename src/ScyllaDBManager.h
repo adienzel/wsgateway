@@ -16,7 +16,8 @@ public:
      * constructor
      * @param hosts 
      */
-    explicit ScyllaDBManager(const std::string_view& app_server_name) : m_app_server_name(app_server_name) {
+    explicit ScyllaDBManager(const std::string_view& scylladb_server__name, const std::string_view& app_server_name) : 
+                              m_scylladb_server__name(scylladb_server__name), m_app_server_name(app_server_name) {
         cluster = std::shared_ptr<CassCluster>(cass_cluster_new(), cass_cluster_free);
         session = std::shared_ptr<CassSession>(cass_session_new(), cass_session_free);
     }
@@ -131,6 +132,7 @@ private:
     std::string m_keyspace;
     std::string m_table;
     std::string m_app_server_name;
+    std::string m_scylladb_server__name;
     
     [[nodiscard]] bool execute_query(const std::string& query) const {
         CassStatement* statement = cass_statement_new(query.c_str(), 0);

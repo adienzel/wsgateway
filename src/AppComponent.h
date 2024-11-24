@@ -28,6 +28,14 @@
 
 struct Config {
     Config() {
+        auto [host, ip, err] = getHostAndIP();
+        if (err != 0) {
+            OATPP_LOGe(__func__, "failed to get host and ip, {} ", host)
+        } else {
+            host_ip = host;
+            OATPP_LOGi(__func__, "host = {}, ip = {} ", host, ip)
+        }
+        
         server_address   = EnvUtils::getEnvString("WSS_ADDRESS", "0.0.0.0");
         
         numjber_of_ports = (uint8_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_PORTS", 24);
@@ -59,6 +67,7 @@ struct Config {
                EnvUtils::getEnvString("WSS_SCYLLADB_TABLE_NAME", "vehicles");
     }
 
+    std::string host_ip;
     std::string server_address;
     oatpp::network::Address::Family network_family_type = oatpp::network::Address::Family::IP_4; 
     int8_t numjber_of_ports;
@@ -230,7 +239,7 @@ public:
         //OATPP_LOGd(__func__, " {}", __LINE__)
         OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
         auto addr = m_cmdArgs->scylladb_address;
-        return std::make_shared<ScyllaDBManager>(addr);
+        return std::make_shared<ScyllaDBManager>(addr, m_cmdArgs->host_ip);
     }());
     
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::web::client::RequestExecutor>, requestExcecutor)("clientExcecutor", [this] {

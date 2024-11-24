@@ -17,14 +17,7 @@ void run(int argc, const char * argv[]) {
         AppComponent components;
         OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
 
-        auto [host, ip, err] = getHostAndIP();
-        if (err != 0) {
-            OATPP_LOGe(__func__, "failed to get host and ip, {} ", host)
-        } else {
-            OATPP_LOGi(__func__, "host = {}, ip = {} ", host, ip)
-        }
-
-        
+                
         //OATPP_LOGd(__func__, " {}", __LINE__)
         OATPP_COMPONENT(std::shared_ptr<ScyllaDBManager>, dbManager, "scyllaDBManager");
         //OATPP_LOGd(__func__, " {}", __LINE__)
