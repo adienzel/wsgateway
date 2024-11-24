@@ -98,6 +98,10 @@ void run(int argc, const char * argv[]) {
 
 int main(int argc, const char * argv[]) {
     
+    auto [host, ip, err] = getHostAndIP();
+    if (err != 0) {
+        OATPP_LOGe(__func__, "failed to get host and ip, %s ", host)
+    }
     oatpp::Environment::init();
     
     run(argc, argv);

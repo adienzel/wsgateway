@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Read the partial address, start, and stop values from environment variables
-# removed since started to use ports and not IP address
+# removed since started to use ports and not IP
 # PARTIAL_ADDRESS=${WSS_PARTIAL_ADDRESS:-"192.168.1"}
 # START=${WSS_START_ADDRESS:-2}
 # STOP=${WSS_END_ADDRESS:-63}

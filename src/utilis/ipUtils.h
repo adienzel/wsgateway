@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unistd.h>
+#include <netdb.h>
 #include <arpa/inet.h>
 
 
@@ -51,5 +53,30 @@ bool is_valid_ipv6(const std::string& ip) {
     return inet_pton(AF_INET6, ip.c_str(), &(sa.sin6_addr)) != 0;
 }
 
+
+std::tuple<std::string, std::string, int> getHostAndIP() {
+    char host[256];
+    char *ip;
+    struct hostent *host_entry;
+    int hostname;
+
+    hostname = gethostname(host, sizeof(host));
+    if (hostname == -1) {
+        return std::make_tuple("gethostname", "", -1);
+    }
+
+    host_entry = gethostbyname(host);
+    if (host_entry == NULL) {
+        return std::make_tuple("gethostbyname", "", -1);
+    }
+
+    ip = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0]));
+    if (ip == NULL) {
+        perror("inet_ntoa");
+        return std::make_tuple("inet_ntoa", "", -1);
+    }
+
+    return std::make_tuple(host, ip, 0);
+}
 
 #endif //VGEATWAY_IPUTILS_H
