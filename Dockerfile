@@ -15,9 +15,8 @@ RUN apt-get update && apt-get install -y cmake libssl-dev net-tools wireshark bu
       sh autogen.sh && ./configure && make install && cd .. && rm v1.x.zip && rm -rf libuv-1.x && \
       wget https://github.com/scylladb/cpp-driver/archive/refs/heads/master.zip && unzip master.zip && cd cpp-driver-master && \
       mkdir build && cd build && cmake .. && make install && cd .. && rm -rf build && cd ../ && rm master.zip && \
-      rm -rf cpp-driver-master
-
-RUN git clone https://github.com/adienzel/wsgateway.git && cd wsgateway && mkdir build && cd build .. && pwd / > /dev/stdout &&  cmake .. && make
+      rm -rf cpp-driver-master && \
+      git clone https://github.com/adienzel/wsgateway.git && cd wsgateway && mkdir build && cd build .. && pwd / > /dev/stdout &&  cmake .. && make
 
 
 # # RUN pwd / > /dev/stdout
@@ -52,7 +51,7 @@ COPY --from=wsgatewaybuild /usr/src/app/wsgateway/findScylladbIP.sh /wsgateway/f
 # Make the scripts executable 
 RUN chmod +x /wsgateway/vGateway-exe && chmod +x /wsgateway/network-config.sh && chmod +x /wsgateway/start_application.sh && \
       chmod +x /wsgateway/findScylladbIP.sh && \
-      apt update && apt install -y net-tools wireshark build-essential git curl wget openssl iproute2 libstdc++
+      apt update && apt install -y net-tools wireshark build-essential git curl wget openssl iproute2
 # Set the entrypoint to the custom network configuration script 
 
 

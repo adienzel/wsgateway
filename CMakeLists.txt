@@ -16,6 +16,7 @@ add_library(${project_name}-lib
         src/websocket/WebSocketListener.h
         src/websocket/WebSocketListener.cpp
         src/utilis/ipUtils.h
+        src/utilis/messageDTO.h
         src/utilis/env.h
         src/websocket/WebSocketComponents.h
         src/controler/WsController.h

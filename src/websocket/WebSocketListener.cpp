@@ -2,18 +2,20 @@
 
 #include <utility>
 #include "../client/RestClient.h"
+#include "utilis/messageDTO.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WSListener
 
 oatpp::async::CoroutineStarter WebSocketListener::onPing(const std::shared_ptr<AsyncWebSocket>& socket,
                                                          const oatpp::String& message) {
-    OATPP_LOGd(TAG, "onPing")
+    OATPP_LOGd(TAG, "onPing");
     return socket->sendPongAsync(message);
 }
 
 oatpp::async::CoroutineStarter WebSocketListener::onPong(const std::shared_ptr<AsyncWebSocket>& socket,
                                                          const oatpp::String& message) {
-    OATPP_LOGd(TAG, "onPong")
+    OATPP_LOGd(TAG, "onPong");
     return nullptr; // do nothing
 }
 
@@ -37,14 +39,26 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                                                               oatpp::v_io_size size) {
     if (size == 0) { // message transfer finished
         if (opcode == oatpp::websocket::Frame::OPCODE_TEXT) {
-            OATPP_LOGd(__func__, "got text")
+            OATPP_LOGd(__func__, "got text");
         } else if (opcode == oatpp::websocket::Frame::OPCODE_BINARY) {
-            OATPP_LOGd(__func__, "got binary of size {}", m_messageBuffer.getCapacity())
+            OATPP_LOGd(__func__, "got binary of size {}", m_messageBuffer.getCapacity());
         }
+        struct timespec t {0,0};
+        clock_gettime(CLOCK_MONOTONIC, &t);
         auto wholeMessage = m_messageBuffer.toString();
         m_messageBuffer.setCurrentPosition(0);
-        
-        OATPP_LOGd(TAG, "onMessage to client {} message={}", clientID, wholeMessage->c_str())
+        auto objectMapper = std::make_shared<oatpp::json::ObjectMapper>(); 
+        auto json = objectMapper->readFromString<oatpp::Object<JSON_message>>(m_messageBuffer.toString());
+
+        if (json->MessageType == "REQ") {
+            json->WsUpSeconds = t.tv_sec;
+            json->WsUpNano  = t.tv_nsec;
+        } else if (json->MessageType == "RES") {
+            json->WsDnSeconds = t.tv_sec;
+            json->WsDnNano  = t.tv_nsec;
+        }
+        wholeMessage = objectMapper->writeToString(json);
+        OATPP_LOGd(TAG, "onMessage to client {} message={}", clientID, wholeMessage->c_str());
     
         //TODO dispatch messages to apps
     
