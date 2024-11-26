@@ -1,6 +1,7 @@
 #include "WebSocketListener.h"
 
 #include <utility>
+#include <future>
 #include "../client/RestClient.h"
 #include "utilis/messageDTO.h"
 
@@ -31,6 +32,28 @@ oatpp::async::CoroutineStarter WebSocketListener::onClose(const std::shared_ptr<
     webSocketComponent->setClientNotAvailable(this->clientID);
     // webSocketComponent->removeClient(this->clientID);
     return nullptr; // do nothing
+}
+
+std::future<std::shared_ptr<oatpp::web::protocol::http::incoming::Response>> asyncRestRequest(const oatpp::String& jsonString) {
+    std::promise<std::shared_ptr<oatpp::web::protocol::http::incoming::Response>> promise;
+    auto future = promise.get_future();
+    // Perform the request in a separate thread 
+    std::thread([jsonString, promise = std::move(promise)]() mutable {
+        try {
+            auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared("http://your-api-endpoint.com");
+            // Create a DTO for the request body 
+            auto requestBody = oatpp::Object<JSON_message>::createShared();
+            requestBody-> = jsonString;
+            // Execute POST request 
+            auto response = requestExecutor->execute("POST", "/your-endpoint", requestBody);
+            // Fulfill the promise with the response 
+            promise.set_value(response);
+        } catch (...) { 
+            // Set exception in promise if any 
+            promise.set_exception(std::current_exception());
+        }
+    }).detach();
+    return future;
 }
 
 oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_ptr<AsyncWebSocket>& socket,
