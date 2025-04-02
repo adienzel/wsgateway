@@ -40,12 +40,13 @@ std::future<std::shared_ptr<oatpp::web::protocol::http::incoming::Response>> asy
     // Perform the request in a separate thread 
     std::thread([jsonString, promise = std::move(promise)]() mutable {
         try {
-            auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared("http://your-api-endpoint.com");
+            OATPP_COMPONENT(std::shared_ptr<oatpp::web::client::RequestExecutor>, requestExecutor, "clientExcecutor");
+//            auto requestExecutor = std::make_shared<oatpp::web::client::HttpRequestExecutor>(" "); //::createShared("http://your-api-endpoint.com");
             // Create a DTO for the request body 
-            auto requestBody = oatpp::Object<JSON_message>::createShared();
-            requestBody-> = jsonString;
-            // Execute POST request 
-            auto response = requestExecutor->execute("POST", "/your-endpoint", requestBody);
+            //requestExecutor            // Execute POST request 
+            oatpp::web::protocol::http::Headers headers;
+            auto body = oatpp::web::protocol::http::outgoing::BufferBody::createShared(jsonString);
+            auto response = requestExecutor->execute("POST", "/your-endpoint", headers, body, nullptr);
             // Fulfill the promise with the response 
             promise.set_value(response);
         } catch (...) { 
@@ -118,7 +119,7 @@ void WebSocketListener::sendToRestServer(const oatpp::String& version, const oat
             
         Action onResponse(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>& response) {
             if (response->getStatusCode() == 200) {
-                OATPP_LOGi("Client", "Message sent sucssesfuly")
+                OATPP_LOGi("Client", "Message sent successfully")
             } else {
                 OATPP_LOGe("Client", "Failed to send Message")
             }

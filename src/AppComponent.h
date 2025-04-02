@@ -25,6 +25,7 @@
 
 #include "ScyllaDBManager.h"
 #include "utilis/env.h"
+#include "client/RestClient.h"
 
 struct Config {
     Config() {
@@ -217,12 +218,21 @@ public:
     /**
      *  Create ObjectMapper component to serialize/deserialize DTOs in Contoller's API
      */
-    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, apiObjectMapper)([] {
+    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, apiObjectMapper)("clientObjectMapper", [] {
         //OATPP_LOGd(__func__, " {}", __LINE__)
         return std::make_shared<oatpp::json::ObjectMapper>();
     }());
-
-//  std::shared_ptr<oatpp::data::mapping::ObjectMapper> apiObjectMapper = std::make_shared<oatpp::json::ObjectMapper>();
+    
+    
+    /**
+ *  Create ObjectMapper component to serialize/deserialize in client API
+ */
+    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, clientApiObjectmapper)([] {
+        //OATPP_LOGd(__func__, " {}", __LINE__)
+        return std::make_shared<oatpp::json::ObjectMapper>();
+    }());
+    
+    
     
     /**
      *  Create websocket connection handler
@@ -252,6 +262,15 @@ public:
         oatpp::network::Address address(addr, port);
         auto connectionProvider = std::make_shared<oatpp::network::tcp::client::ConnectionProvider>(address);
         return std::make_shared<oatpp::web::client::HttpRequestExecutor>(connectionProvider);
+        
+    }());
+    
+    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::web::client::ApiClient>, clientApi)("clientapi", [this] {
+        OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, apiObjectMapper, "clientObjectMapper");
+        OATPP_COMPONENT(std::shared_ptr<oatpp::web::client::RequestExecutor>, requestExcecutor, "clientExcecutor");
+        
+        return oatpp::web::client::ApiClient::createShared(requestExcecutor, apiObjectMapper);
+        //return std::make_shared<oatpp::web::client::ApiClient>(requestExcecutor, apiObjectMapper);
         
     }());
 

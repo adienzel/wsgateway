@@ -66,9 +66,7 @@ private:
     std::unordered_map<oatpp::String, std::shared_ptr<oatpp::websocket::AsyncWebSocket>> clients;
     std::atomic_flag clientMapLock = ATOMIC_FLAG_INIT; // Atomic flag for synchronization
     OATPP_COMPONENT(std::shared_ptr<ScyllaDBManager>, dbManager, "scyllaDBManager");
-    WebSocketComponent() {
-     
-    }
+    WebSocketComponent() = default;
 };
 
 #endif //ASYNC_WEBSOCKET_SERVER_WEBSOCKETCOMPONENTS_H
