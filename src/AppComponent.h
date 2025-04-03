@@ -25,6 +25,8 @@
 
 #include "ScyllaDBManager.h"
 #include "utilis/env.h"
+#include "utilis/split.h"
+
 #include "client/RestClient.h"
 
 struct Config {
