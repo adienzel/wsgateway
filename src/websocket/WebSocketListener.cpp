@@ -10,7 +10,7 @@
 
 oatpp::async::CoroutineStarter WebSocketListener::onPing(const std::shared_ptr<AsyncWebSocket>& socket,
                                                          const oatpp::String& message) {
-    OATPP_LOGd(TAG, "onPing");
+    OATPP_LOGd(TAG, "onPing")
     return socket->sendPongAsync(message);
 }
 
@@ -38,7 +38,7 @@ std::future<std::shared_ptr<oatpp::web::protocol::http::incoming::Response>> asy
     std::promise<std::shared_ptr<oatpp::web::protocol::http::incoming::Response>> promise;
     auto future = promise.get_future();
     // Perform the request in a separate thread 
-    std::thread([jsonString, promise = std::move(promise)]() mutable {
+    auto t = std::thread([jsonString, promise = std::move(promise)]() mutable {
         try {
             OATPP_COMPONENT(std::shared_ptr<oatpp::web::client::RequestExecutor>, requestExecutor, "clientExcecutor");
 //            auto requestExecutor = std::make_shared<oatpp::web::client::HttpRequestExecutor>(" "); //::createShared("http://your-api-endpoint.com");
@@ -53,7 +53,7 @@ std::future<std::shared_ptr<oatpp::web::protocol::http::incoming::Response>> asy
             // Set exception in promise if any 
             promise.set_exception(std::current_exception());
         }
-    }).detach();
+    });
     return future;
 }
 
