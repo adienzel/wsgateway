@@ -8,6 +8,9 @@
 #include <vector>
 #include <memory>
 #include <optional>
+#include "utilis/split.h"
+
+#include <oatpp/base/Log.hpp>
 
 class ScyllaDBManager {
 public:
@@ -16,8 +19,8 @@ public:
      * constructor
      * @param hosts 
      */
-    explicit ScyllaDBManager(const std::string_view& scylladb_server__name, const std::string_view& app_server_name) : 
-                              m_scylladb_server__name(scylladb_server__name), m_app_server_name(app_server_name) {
+    explicit ScyllaDBManager(const std::string_view& scylladb_server_name, const std::string_view& app_server_name, const std::string_view& port) :
+            m_app_server_name(app_server_name), m_scylladb_server_name(scylladb_server_name), m_scylladb_port(port) {
         cluster = std::shared_ptr<CassCluster>(cass_cluster_new(), cass_cluster_free);
         session = std::shared_ptr<CassSession>(cass_session_new(), cass_session_free);
     }
@@ -29,6 +32,28 @@ public:
     
     [[nodiscard]] bool connect(const std::string& hosts) const {
         cass_cluster_set_contact_points(cluster.get(), hosts.c_str());
+        auto hostsVec = split(hosts);
+        auto portsVec = split(m_scylladb_port);
+        if (portsVec.size() != hostsVec.size()) {
+            OATPP_LOGd(__func__, "the list of hosts is not as the list of ports only one initialized")
+            char* end;
+            auto port = (uint16_t)std::strtol(m_scylladb_port.c_str(), &end, 10);
+            if (*end == '\0') {
+                cass_cluster_set_port(cluster.get(), port);
+            }
+        } else {
+            uint16_t i = 0;
+            for (auto p : portsVec) {
+                if (!p.empty()) {
+                    char* end;
+                    auto port = (uint16_t)std::strtol(m_scylladb_port.c_str(), &end, 10);
+                    if (*end == '\0') {
+                        cass_cluster_set_port(cluster.get(), port + i);
+                    }
+                }
+            }
+            
+        }
     
         CassFuture* connect_future = cass_session_connect(session.get(), cluster.get());
         bool success = cass_future_error_code(connect_future) == CASS_OK;
@@ -132,7 +157,8 @@ private:
     std::string m_keyspace;
     std::string m_table;
     std::string m_app_server_name;
-    std::string m_scylladb_server__name;
+    std::string m_scylladb_server_name;
+    std::string m_scylladb_port;
     
     [[nodiscard]] bool execute_query(const std::string& query) const {
         CassStatement* statement = cass_statement_new(query.c_str(), 0);

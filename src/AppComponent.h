@@ -40,28 +40,28 @@ struct Config {
         server_address   = EnvUtils::getEnvString("WSS_ADDRESS", "0.0.0.0");
         
         numjber_of_ports = (uint8_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_PORTS", 24);
-        base_port = EnvUtils::getEnvInt("WSS_PORT", 8020);
+        base_port = (uint16_t)EnvUtils::getEnvInt("WSS_PORT", 8020);
         http_request_address = EnvUtils::getEnvString("WSS_HTTP_REQUEST_ADDRESS", "127.0.0.1");
         http_request_port = EnvUtils::getEnvString("WSS_HTTP_REQUEST_PORT", "8992");
 
         // OATPP config
         number_of_worker_threads = 
-               (int32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_WORKER_THREADS", 24);
+               (uint32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_WORKER_THREADS", 24);
         number_of_io_threads = 
-               (int32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_IO_THREADS", 24);
+               (uint32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_IO_THREADS", 24);
         number_of_timer_threads =
-               (int32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_TIMER_THREADS", 1);
+               (uint32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_TIMER_THREADS", 1);
 
         //scylladb
         scylladb_address = 
                EnvUtils::getEnvString("WSS_SCYLLA_DB_ADDRESS", "172.17.0.2");
-        scylladb_port= 
+        scylladb_port = 
                EnvUtils::getEnvString("WSS_SCYLLADB_PORT", "9042");
 
         scylladb_keyspace_name = 
                EnvUtils::getEnvString("WSS_SCYLLADB_KEYSPACE_NAME", "vin");
         scylladb_replication_factor =
-               (int32_t)EnvUtils::getEnvInt("WSS_SCYLLADB_REPLICATION_FACTOR", 3);
+               (uint32_t)EnvUtils::getEnvInt("WSS_SCYLLADB_REPLICATION_FACTOR", 3);
         scylladb_strategy = 
                EnvUtils::getEnvString("WSS_SCYLLADB_STRATEGY", "SimpleStrategy");
         scylladb_table_name = 
@@ -71,19 +71,19 @@ struct Config {
     std::string host_ip;
     std::string server_address;
     oatpp::network::Address::Family network_family_type = oatpp::network::Address::Family::IP_4; 
-    int8_t numjber_of_ports;
+    uint8_t numjber_of_ports;
     uint16_t base_port;
     std::string http_request_address;
     std::string http_request_port;
 
-    int32_t number_of_worker_threads;
-    int32_t number_of_io_threads;
-    int32_t number_of_timer_threads;
+    uint32_t number_of_worker_threads;
+    uint32_t number_of_io_threads;
+    uint32_t number_of_timer_threads;
 
     std::string scylladb_address;
     std::string scylladb_port;
     std::string scylladb_keyspace_name;
-    int32_t scylladb_replication_factor;
+    uint32_t scylladb_replication_factor;
     std::string scylladb_strategy;
     std::string scylladb_table_name;
 
@@ -92,21 +92,7 @@ struct Config {
 
 class AppComponent {
 public:
-//    explicit AppComponent(const oatpp::base::CommandLineArguments &cmdArgs) : m_cmdArgs(cmdArgs) {
-//        //OATPP_LOGd(__func__, " {}", __LINE__)
-//
-//    }
     AppComponent() = default;
-    
-//    explicit AppComponent(int argc, const char *argv[]) {
-//        //m_cmdArgs = oatpp::base::CommandLineArguments(argc, argv);
-//        //OATPP_LOGd(__func__, " {}", __LINE__)
-//    
-//        OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::base::CommandLineArguments>, m_cmdArgs)([&] {
-//            return std::make_shared<oatpp::base::CommandLineArguments>(argc, argv);
-//        }());
-//    
-//    };
     
     OATPP_CREATE_COMPONENT(std::shared_ptr<Config>, configuration)([] {
         return std::make_shared<Config>();
@@ -137,7 +123,7 @@ public:
     auto providers = std::make_shared<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>();
     OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
  
-    for(v_uint8 i = 0; i < m_cmdArgs->numjber_of_ports; i++) {
+    for (v_uint8 i = 0; i < m_cmdArgs->numjber_of_ports; i++) {
         // if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4) {
         //     ip_addr = base_ip + "." + std::to_string(i);
         // } else {
@@ -249,7 +235,8 @@ public:
         //OATPP_LOGd(__func__, " {}", __LINE__)
         OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
         auto addr = m_cmdArgs->scylladb_address;
-        return std::make_shared<ScyllaDBManager>(addr, m_cmdArgs->host_ip);
+        auto port = m_cmdArgs->scylladb_port;
+        return std::make_shared<ScyllaDBManager>(addr, m_cmdArgs->host_ip, port);
     }());
     
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::web::client::RequestExecutor>, requestExcecutor)("clientExcecutor", [this] {

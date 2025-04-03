@@ -20,3 +20,4 @@ done
 unique_ips=$(echo "${ip_addresses[@]}" | tr ' ' '\n' | sort -u | tr '\n' ',' | sed 's/,$//')
 
 echo $unique_ips
+export WSS_SCYLLA_DB_ADDRESS="$unique_ips"

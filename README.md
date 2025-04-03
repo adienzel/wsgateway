@@ -2,19 +2,43 @@
 
 ## intall scyladb
 
-,,,
+```
 
 docker pull scylladb/scylla
 
-docker run --name scylla-node1 --cpus=2 -e SCYLLA_CLUSTER_NAME="ws-test-cluster" -d scylladb/scylla
-
-docker run --name scylla-node2 --cpus=2 -e SCYLLA_CLUSTER_NAME="ws-test-cluster" -d scylladb/scylla
-
-docker run --name scylla-node3 --cpus=2 -e SCYLLA_CLUSTER_NAME="ws-test-cluster" -d scylladb/scylla
+```
 
 
+Use the commands below
 
-,,,
+SCYLLA_LAST_NODE defines the number of scyllaDb servers to run
+Then run './startScylla.sh'
+```
+export SCYLLA_LAST_NODE=3 // run 3 servers the default is 5
+./startScylla.sh
+```
+
+then run the following to see that all containers are up and running
+
+```
+docker ps --all
+```
+
+then run the following that will set the following environment variables
+
+'''
+
+    WSS_SCYLLA_DB_ADDRESS // the servers ip address in the vm
+    WSS_SCYLLADB_PORT     // the servers ports in the vm
+
+'''
+
+```
+source ./findScylladbIP.sh
+source ./findScyllaDblisteningPorts.sh scylla-node 9042
+```
+
+
 
 after that use the script findScylladbIP.sh and set the scyla server values
 
