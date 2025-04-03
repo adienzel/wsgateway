@@ -18,6 +18,7 @@ add_library(${project_name}-lib
         src/utilis/ipUtils.h
         src/utilis/messageDTO.h
         src/utilis/env.h
+        src/utilis/split.h
         src/websocket/WebSocketComponents.h
         src/controler/WsController.h
         src/ScyllaDBManager.h 
