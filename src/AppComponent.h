@@ -65,7 +65,7 @@ struct Config {
         scylladb_replication_factor =
                (uint32_t)EnvUtils::getEnvInt("WSS_SCYLLADB_REPLICATION_FACTOR", 3);
         scylladb_strategy = 
-               EnvUtils::getEnvString("WSS_SCYLLADB_STRATEGY", "SimpleStrategy");
+               EnvUtils::getEnvString("WSS_SCYLLADB_STRATEGY", "NetworkTopologyStrategy");
         scylladb_table_name = 
                EnvUtils::getEnvString("WSS_SCYLLADB_TABLE_NAME", "vehicles");
     }
