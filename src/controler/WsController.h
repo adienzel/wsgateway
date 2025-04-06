@@ -8,6 +8,7 @@
 #include "oatpp-websocket/Handshaker.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
 #include "oatpp/web/server/api/Endpoint.hpp"
 
@@ -26,15 +27,24 @@
 #include OATPP_CODEGEN_BEGIN(ApiController) //<-- codegen begin
 
 class WsController : public oatpp::web::server::api::ApiController {
+private:
+    using __ControllerType = WsController;
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, websocketConnectionHandler, "websocket");
-public:
-    typedef WsController __ControllerType;
-    
+protected:
     explicit WsController(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper))
             : oatpp::web::server::api::ApiController(objectMapper) {
         OATPP_LOGd(__func__, " {}", __LINE__)
-    
+        
     }
+public:
+    
+    static std::shared_ptr<WsController> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>,
+                                                                      objectMapper)){
+        return std::shared_ptr<WsController>(new WsController(objectMapper));
+    }
+    
+    
+    
     
     ENDPOINT_INFO(SendTextMessage) {
         info->summary = "Send Text RPC";
