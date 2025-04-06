@@ -52,7 +52,7 @@ void run(int argc, const char * argv[]) {
     
         /* Create MyController and add all of its endpoints to router */
         //router->addController(std::make_shared<WsController>());
-        router->addController(WsController::createShared())
+        router->addController(WsController::createShared());
     
         OATPP_LOGd(__func__, " {}", __LINE__)
         /* create servers */
