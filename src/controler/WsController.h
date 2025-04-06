@@ -31,7 +31,7 @@ private:
     using __ControllerType = WsController;
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, websocketConnectionHandler, "websocket");
 protected:
-    explicit WsController(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper))
+    WsController(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper))
             : oatpp::web::server::api::ApiController(objectMapper) {
         OATPP_LOGd(__func__, " {}", __LINE__)
         
