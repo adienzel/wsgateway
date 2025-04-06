@@ -43,14 +43,15 @@ void run(int argc, const char * argv[]) {
             exit(-1);
         }
         
-        //OATPP_LOGd(__func__, " {}", __LINE__)
+        OATPP_LOGd(__func__, " {}", __LINE__)
         
         /* Get router component from environment */
         OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
         
         /* Create MyController and add all of its endpoints to router */
         router->addController(std::make_shared<WsController>());
-
+    
+        OATPP_LOGd(__func__, " {}", __LINE__)
         /* create servers */
         OATPP_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders);
 
@@ -62,10 +63,14 @@ void run(int argc, const char * argv[]) {
                     /* Get connection handler component */
                     try {
                         auto tid = gettid();
-                        // OATPP_LOGi(__func__, "thread {} is running", tid)
+                        
+                        OATPP_LOGi(__func__, "thread {} is running", tid)
+                        
                         OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler, "http");
                         oatpp::network::Server server(provider, connectionHandler);
-                        // OATPP_LOGi(__func__, "thread {} is running, line = {}", tid, __LINE__)
+                        
+                        OATPP_LOGi(__func__, "thread {} is running, line = {}", tid, __LINE__)
+                        
                         server.run();
                     } catch (...) {
                         OATPP_LOGe(__func__, "thread fail ")
