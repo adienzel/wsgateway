@@ -29,12 +29,15 @@ add_library(${project_name}-lib
 find_package(oatpp              1.4.0 REQUIRED)
 find_package(oatpp-websocket    1.4.0 REQUIRED)
 find_package(ScylladbCppDriver REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 #message(STATUS "SCYLLA_LIBRERIES = ${SCYLLA_LIBRERIES}")
 target_link_libraries(${project_name}-lib
         PUBLIC oatpp::oatpp
         PUBLIC oatpp::oatpp-test
         PUBLIC oatpp::oatpp-websocket
+        OpenSSL::SSL 
+        OpenSSL::Crypto
         ${SCYLLA_LIBRERIES}
         )
 
