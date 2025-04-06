@@ -33,7 +33,7 @@ private:
 protected:
     WsController(OATPP_COMPONENT(std::shared_ptr<oatpp::json::ObjectMapper>, objectMapper))
             : oatpp::web::server::api::ApiController(objectMapper) {
-        OATPP_LOGd(__func__, " {}", __LINE__)
+        //OATPP_LOGd(__func__, " {}", __LINE__)
         
     }
 public:
@@ -41,7 +41,7 @@ public:
     static std::shared_ptr<WsController> createShared(OATPP_COMPONENT(std::shared_ptr<oatpp::json::ObjectMapper>,
                                                                       objectMapper)){
     
-        OATPP_LOGd(__func__, " {}", __LINE__)
+        //OATPP_LOGd(__func__, " {}", __LINE__)
         return std::shared_ptr<WsController>(new WsController(objectMapper));
     }
     

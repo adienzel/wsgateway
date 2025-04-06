@@ -41,7 +41,7 @@ struct Config {
         
         server_address   = EnvUtils::getEnvString("WSS_ADDRESS", "0.0.0.0");
         
-        numjber_of_ports = (uint8_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_PORTS", 24);
+        number_of_ports = (uint8_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_PORTS", 24);
         base_port = (uint16_t)EnvUtils::getEnvInt("WSS_PORT", 8020);
         http_request_address = EnvUtils::getEnvString("WSS_HTTP_REQUEST_ADDRESS", "127.0.0.1");
         http_request_port = EnvUtils::getEnvString("WSS_HTTP_REQUEST_PORT", "8992");
@@ -60,20 +60,34 @@ struct Config {
         scylladb_port = 
                EnvUtils::getEnvString("WSS_SCYLLADB_PORT", "9042");
 
-        scylladb_keyspace_name = 
-               EnvUtils::getEnvString("WSS_SCYLLADB_KEYSPACE_NAME", "vin");
+        scylladb_keyspace_name = EnvUtils::getEnvString("WSS_SCYLLADB_KEYSPACE_NAME", "vin");
+         
+         
+         
+         
+        auto tmp = EnvUtils::getEnvString("WSS_USE_MTLS", "false");
+        std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c){ return std::tolower(c); });
+        use_mtls = tmp.compare("false") == 0;
+        
         scylladb_replication_factor =
                (uint32_t)EnvUtils::getEnvInt("WSS_SCYLLADB_REPLICATION_FACTOR", 3);
         scylladb_strategy = 
                EnvUtils::getEnvString("WSS_SCYLLADB_STRATEGY", "NetworkTopologyStrategy");
         scylladb_table_name = 
                EnvUtils::getEnvString("WSS_SCYLLADB_TABLE_NAME", "vehicles");
+    
+        
+        cert_filename = EnvUtils::getEnvString("WSS_CA_FILE_NAME", "ca.crt");
+        base_port = (uint16_t)EnvUtils::getEnvInt("WSS_MTLS_BASE_PORT", 8443);
+        private_key_filename = EnvUtils::getEnvString("WSS_PRIVATE_KEY_FILE_NAME", "server.key");
+        cert_filename = EnvUtils::getEnvString("WSS_SERVER_CERTIFICATE_FILE_NAME", "server.crt");
+        
     }
 
     std::string host_ip;
     std::string server_address;
     oatpp::network::Address::Family network_family_type = oatpp::network::Address::Family::IP_4; 
-    uint8_t numjber_of_ports;
+    uint8_t number_of_ports;
     uint16_t base_port;
     std::string http_request_address;
     std::string http_request_port;
@@ -88,6 +102,12 @@ struct Config {
     uint32_t scylladb_replication_factor;
     std::string scylladb_strategy;
     std::string scylladb_table_name;
+    
+    bool use_mtls;
+    uint16_t mtls_base_port;
+    std::string cert_filename;
+    std::string private_key_filename;
+    std::string ca_key_file_name;
 
 };
 
@@ -124,8 +144,11 @@ public:
   OATPP_CREATE_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders)([this] {
     auto providers = std::make_shared<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>();
     OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
- 
-    for (v_uint8 i = 0; i < m_cmdArgs->numjber_of_ports; i++) {
+    auto port = m_cmdArgs->base_port;
+    if (m_cmdArgs->use_mtls) {
+        port = m_cmdArgs->mtls_base_port;
+    }
+    for (v_uint8 i = 0; i < m_cmdArgs->number_of_ports; i++) {
         // if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4) {
         //     ip_addr = base_ip + "." + std::to_string(i);
         // } else {
@@ -140,11 +163,13 @@ public:
         //     OATPP_LOGe(TAG, "IP address is not IPv4 {} address", ip_addr)
         //     exit(-1);
         // }
+        
         try {
+            
             OATPP_LOGd("AppComponent", "Connection Provider for address: {}:{}", m_cmdArgs->server_address, m_cmdArgs->base_port + i)
             auto provider = oatpp::network::tcp::server::ConnectionProvider::createShared(
                             oatpp::network::Address(m_cmdArgs->server_address,
-                                                    m_cmdArgs->base_port + i)); //TODO     handle dual stack 
+                                                    port + i)); //TODO     handle dual stack 
             providers->push_back(provider);
         } catch (const std::exception& e) {
             OATPP_LOGe(__func__, "thread fail while trying to set connection, error :", e.what());

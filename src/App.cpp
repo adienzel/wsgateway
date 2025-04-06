@@ -1,12 +1,19 @@
 #include "controler/WsController.h"
 #include "AppComponent.h"
-
+#include <openssl/ssl.h>
+#include <openssl/tls1.h>
+#include <openssl/err.h>
 #include "oatpp/network/Server.hpp"
+#include "oatpp/web/server/HttpConnectionHandler.hpp"
+#include "oatpp/web/server/HttpRouter.hpp"
+
 
 #include <iostream>
 #include <unistd.h>
 #include <sys/types.h>
 #include <exception>
+
+
 
 
 void run(int argc, const char * argv[]) {
@@ -16,8 +23,46 @@ void run(int argc, const char * argv[]) {
     try {
         AppComponent components;
         OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
-
-                
+    
+        SSL_CTX* ctx;
+        
+        if (m_cmdArgs->use_mtls) {
+            SSL_library_init();
+            SSL_load_error_strings();
+            OpenSSL_add_all_algorithms();
+    
+            const SSL_METHOD *method = TLS_server_method();
+            ctx = SSL_CTX_new(method);
+    
+    
+            if (!ctx) {
+                ERR_print_errors_fp(stderr);
+                exit(EXIT_FAILURE);
+            }
+    
+            // Set the minimum and maximum protocol versions to TLS 1.3
+            SSL_CTX_set_min_proto_version(ctx, TLS1_3_VERSION);
+            SSL_CTX_set_max_proto_version(ctx, TLS1_3_VERSION);
+    
+            if (SSL_CTX_use_certificate_file(ctx, m_cmdArgs->cert_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                ERR_print_errors_fp(stderr);
+                OATPP_LOGe(__func__, "Error in SSL_CTX_use_certificate_file {}", m_cmdArgs->cert_filename)
+                exit(EXIT_FAILURE);
+            }
+            if (SSL_CTX_use_PrivateKey_file(ctx, m_cmdArgs->private_key_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                ERR_print_errors_fp(stderr);
+                OATPP_LOGe(__func__, "Error in SSL_CTX_use_PrivateKey_file {}", m_cmdArgs->private_key_filename)
+                exit(EXIT_FAILURE);
+            }
+            if (SSL_CTX_load_verify_locations(ctx, m_cmdArgs->ca_key_file_name.c_str(), nullptr) <= 0) {
+                ERR_print_errors_fp(stderr);
+                OATPP_LOGe(__func__, "Error in SSL_CTX_load_verify_locations {}", m_cmdArgs->ca_key_file_name)
+                exit(EXIT_FAILURE);
+            }
+    
+            SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
+    
+        }
         //OATPP_LOGd(__func__, " {}", __LINE__)
         OATPP_COMPONENT(std::shared_ptr<ScyllaDBManager>, dbManager, "scyllaDBManager");
         //OATPP_LOGd(__func__, " {}", __LINE__)
@@ -43,18 +88,18 @@ void run(int argc, const char * argv[]) {
             exit(-1);
         }
         
-        OATPP_LOGd(__func__, " {}", __LINE__)
+        //OATPP_LOGd(__func__, " {}", __LINE__)
         
         /* Get router component from environment */
         OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
     
-        OATPP_LOGd(__func__, " {}", __LINE__)
+        //OATPP_LOGd(__func__, " {}", __LINE__)
     
         /* Create MyController and add all of its endpoints to router */
         //router->addController(std::make_shared<WsController>());
         router->addController(WsController::createShared());
     
-        OATPP_LOGd(__func__, " {}", __LINE__)
+        //OATPP_LOGd(__func__, " {}", __LINE__)
         /* create servers */
         OATPP_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders);
 
@@ -62,23 +107,18 @@ void run(int argc, const char * argv[]) {
 
         for (auto& provider : *connectionProviders) {
             try {
-                threads.push_back(std::thread([provider]{
+                threads.emplace_back([provider]{
                     /* Get connection handler component */
-                    try {
-                        auto tid = gettid();
-                        
-                        OATPP_LOGi(__func__, "thread {} is running", tid)
+                        //OATPP_LOGi(__func__, "thread {} is running", tid)
                         
                         OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler, "http");
                         oatpp::network::Server server(provider, connectionHandler);
                         
-                        OATPP_LOGi(__func__, "thread {} is running, line = {}", tid, __LINE__)
+                        //auto tid = gettid();
+                        //OATPP_LOGi(__func__, "thread {} is running, line = {}", gettid(), __LINE__)
                         
                         server.run();
-                    } catch (...) {
-                        OATPP_LOGe(__func__, "thread fail ")
-                    }
-                }));
+                });
             } catch (const std::exception& e) {
                 OATPP_LOGe(__func__, "thread fail {}", e.what())
             }

@@ -86,6 +86,12 @@ ENV WSS_SCYLLADB_REPLICATION_FACTOR=3
 ENV WSS_SCYLLADB_STRATEGY="NetworkTopologyStrategy" 
 ENV WSS_SCYLLADB_TABLE_NAME="vehicles"
 
+ENV WSS_USE_MTLS="false"
+ENV WSS_MTLS_BASE_PORT=8443
+ENV WSS_CA_FILE_NAME="ca.crt"
+ENV WSS_PRIVATE_KEY_FILE_NAME="server.key"
+ENV WSS_SERVER_CERTIFICATE_FILE_NAME="server.crt"
+
 #alpine 
 # RUN apk update && apk add bash iproute2 && apk add --no-cache libstdc++
 # RUN apk add --no-cache --virtual=.build-dependencies wget ca-certificates
