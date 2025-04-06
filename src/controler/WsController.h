@@ -40,6 +40,8 @@ public:
     
     static std::shared_ptr<WsController> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>,
                                                                       objectMapper)){
+    
+        OATPP_LOGd(__func__, " {}", __LINE__)
         return std::shared_ptr<WsController>(new WsController(objectMapper));
     }
     
