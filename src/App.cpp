@@ -47,7 +47,9 @@ void run(int argc, const char * argv[]) {
         
         /* Get router component from environment */
         OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
-        
+    
+        OATPP_LOGd(__func__, " {}", __LINE__)
+    
         /* Create MyController and add all of its endpoints to router */
         router->addController(std::make_shared<WsController>());
     
