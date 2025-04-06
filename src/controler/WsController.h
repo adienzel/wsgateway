@@ -31,14 +31,14 @@ private:
     using __ControllerType = WsController;
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, websocketConnectionHandler, "websocket");
 protected:
-    WsController(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper))
+    WsController(OATPP_COMPONENT(std::shared_ptr<oatpp::json::ObjectMapper>, objectMapper))
             : oatpp::web::server::api::ApiController(objectMapper) {
         OATPP_LOGd(__func__, " {}", __LINE__)
         
     }
 public:
     
-    static std::shared_ptr<WsController> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>,
+    static std::shared_ptr<WsController> createShared(OATPP_COMPONENT(std::shared_ptr<oatpp::json::ObjectMapper>,
                                                                       objectMapper)){
     
         OATPP_LOGd(__func__, " {}", __LINE__)

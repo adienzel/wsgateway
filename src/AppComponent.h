@@ -203,6 +203,11 @@ public:
         return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
     }());
     
+    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::json::ObjectMapper>, Objectmapper)([] {
+        //OATPP_LOGd(__func__, " {}", __LINE__)
+        return std::make_shared<oatpp::json::ObjectMapper>();
+    }());
+    
     /**
      *  Create ObjectMapper component to serialize/deserialize DTOs in Contoller's API
      */
