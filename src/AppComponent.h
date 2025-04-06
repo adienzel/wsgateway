@@ -226,10 +226,14 @@ public:
      *  Create websocket connection handler
      */
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, websocketConnectionHandler)("websocket", [] {
-        //OATPP_LOGd(__func__, " {}", __LINE__)
+        OATPP_LOGd(__func__, " {}", __LINE__)
         OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
+        OATPP_LOGd(__func__, " {}", __LINE__)
+    
         auto connectionHandler = oatpp::websocket::AsyncConnectionHandler::createShared(executor);
         connectionHandler->setSocketInstanceListener(std::make_shared<WSInstanceListener>());
+        OATPP_LOGd(__func__, " {}", __LINE__)
+    
         return connectionHandler;
     }());
     

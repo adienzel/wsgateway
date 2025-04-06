@@ -31,7 +31,10 @@ public:
     typedef WsController __ControllerType;
     
     explicit WsController(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper))
-            : oatpp::web::server::api::ApiController(objectMapper) {}
+            : oatpp::web::server::api::ApiController(objectMapper) {
+        OATPP_LOGd(__func__, " {}", __LINE__)
+    
+    }
     
     ENDPOINT_INFO(SendTextMessage) {
         info->summary = "Send Text RPC";
