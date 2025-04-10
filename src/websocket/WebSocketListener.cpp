@@ -1,9 +1,16 @@
 #include "WebSocketListener.h"
 
+#include "oatpp-websocket/AsyncConnectionHandler.hpp"
+#include "oatpp/network/Server.hpp"
+#include "oatpp/data/stream/Stream.hpp"
+#include "oatpp/network/tcp/server/ConnectionProvider.hpp"
+#include "oatpp-1.4.0/oatpp-openssl/oatpp-openssl/Connection.hpp"
+#include <openssl/x509.h>
 #include <utility>
 #include <future>
 #include "../client/RestClient.h"
 #include "utilis/messageDTO.h"
+#include "config.h" 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WSListener
@@ -141,6 +148,25 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
     
     SOCKETS ++;
     OATPP_LOGd(TAG, "New Incoming Connection. Connection count={}", SOCKETS.load())
+    OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
+    
+    if (m_cmdArgs->use_mtls) {
+        auto connection = std::dynamic_pointer_cast<oatpp::openssl::Connection>(socket->getConnection().object);
+        if (connection) {
+            SSL* ssl = connection->getOpenSSLContext();
+            if (ssl) {
+                X509* cert = SSL_get_peer_certificate(ssl);
+                if (cert) {
+                    char* subjectName = X509_NAME_oneline(X509_get_subject_name(cert), 0, 0);
+                    if (subjectName) {
+                        OATPP_LOGd("Server", "Client Identity: %s", subjectName);
+                        OPENSSL_free(subjectName);
+                    }
+                    X509_free(cert);
+                }
+            }
+        }
+    }
     
     /* In this particular case we create one WSListener per each connection */
     /* Which may be redundant in many cases */

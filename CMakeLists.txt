@@ -28,6 +28,7 @@ add_library(${project_name}-lib
 
 find_package(oatpp              1.4.0 REQUIRED)
 find_package(oatpp-websocket    1.4.0 REQUIRED)
+find_package(oatpp-openssl    1.4.0 REQUIRED)
 find_package(ScylladbCppDriver REQUIRED)
 find_package(OpenSSL REQUIRED)
 
@@ -35,6 +36,7 @@ find_package(OpenSSL REQUIRED)
 target_link_libraries(${project_name}-lib
         PUBLIC oatpp::oatpp
         PUBLIC oatpp::oatpp-test
+        PUBLIC oatpp::oatpp-openssl
         PUBLIC oatpp::oatpp-websocket
         OpenSSL::SSL 
         OpenSSL::Crypto
@@ -52,7 +54,7 @@ add_executable(${project_name}-exe
         src/websocket/WebSocketListener.cpp 
         src/websocket/WebSocketListener.h 
         src/client/RestClient.h
-        src/utilis/split.h)
+        src/utilis/split.h src/config.h)
 target_link_libraries(${project_name}-exe ${project_name}-lib)
 add_dependencies(${project_name}-exe ${project_name}-lib)
 
