@@ -56,6 +56,7 @@ struct Config {
         
         
         cert_filename = EnvUtils::getEnvString("WSS_CA_FILE_NAME", "ca.crt");
+        cert_dirname = EnvUtils::getEnvString("WSS_CA_DIRECTORY_NAME", "");
         base_port = (uint16_t)EnvUtils::getEnvInt("WSS_MTLS_BASE_PORT", 8443);
         private_key_filename = EnvUtils::getEnvString("WSS_PRIVATE_KEY_FILE_NAME", "server.key");
         cert_filename = EnvUtils::getEnvString("WSS_SERVER_CERTIFICATE_FILE_NAME", "server.crt");
@@ -84,6 +85,7 @@ struct Config {
     bool use_mtls;
     uint16_t mtls_base_port;
     std::string cert_filename;
+    std::string cert_dirname;
     std::string private_key_filename;
     std::string ca_key_file_name;
     

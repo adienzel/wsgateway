@@ -112,9 +112,6 @@ public:
                 config->addContextConfigurer(
                         std::make_shared<oatpp::openssl::configurer::PeerCertificateVerification>(
                                 oatpp::openssl::configurer::CertificateVerificationMode::EnabledStrong));
-                auto provider = oatpp::openssl::server::ConnectionProvider::createShared(config,
-                                                                                         oatpp::network::Address(m_cmdArgs->server_address, port + i));
-                provider->getT
                 providers->push_back(oatpp::openssl::server::ConnectionProvider::createShared(config,
                                           oatpp::network::Address(m_cmdArgs->server_address, port + i)));
             } else {
