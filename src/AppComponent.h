@@ -56,6 +56,7 @@ public:
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor)([] {
         OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
         //OATPP_LOGd(__func__, " {}", __LINE__)
+        OATPP_LOGd(__func__, "certificate file name =", m_cmdArgs->cert_filename);
 
         return std::make_shared<oatpp::async::Executor>(
                 m_cmdArgs->number_of_worker_threads, /* Data-Processing threads */
