@@ -45,7 +45,7 @@ struct Config {
         
         auto tmp = EnvUtils::getEnvString("WSS_USE_MTLS", "false");
         std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c){ return std::tolower(c); });
-        use_mtls = tmp.compare("false") == 0;
+        use_mtls = tmp.compare("true") == 0;
         
         scylladb_replication_factor =
                 (uint32_t)EnvUtils::getEnvInt("WSS_SCYLLADB_REPLICATION_FACTOR", 3);
