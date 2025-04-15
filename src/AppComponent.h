@@ -101,10 +101,13 @@ public:
 //                                                    port + i));
             if (m_cmdArgs->use_mtls) {
                 auto config = oatpp::openssl::Config::createShared();
+                OATPP_LOGd(__func__, "certificate file name =", m_cmdArgs->cert_filename);
                 config->addContextConfigurer(
                         std::make_shared<oatpp::openssl::configurer::CertificateChainFile>(m_cmdArgs->cert_filename));
+                OATPP_LOGd(__func__, "private key  file name =", m_cmdArgs->private_key_filename);
                 config->addContextConfigurer(
                         std::make_shared<oatpp::openssl::configurer::PrivateKeyFile>(m_cmdArgs->private_key_filename));
+                OATPP_LOGd(__func__, "ca file name =", m_cmdArgs->ca_key_file_name);
                 config->addContextConfigurer(
                         // need to add the directory later
                         std::make_shared<oatpp::openssl::configurer::TrustStore>(m_cmdArgs->ca_key_file_name, nullptr));
