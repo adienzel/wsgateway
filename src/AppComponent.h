@@ -95,20 +95,20 @@ public:
         
         try {
             
-            OATPP_LOGd("AppComponent", "Connection Provider for address: {}:{}", m_cmdArgs->server_address, m_cmdArgs->base_port + i)
+            OATPP_LOGd("AppComponent", "Connection Provider for address: {}:{}", m_cmdArgs->server_address, port + i)
             
 //            auto provider = oatpp::openssl::server::ConnectionProvider::createShared()createShared(
 //                            oatpp::network::Address(m_cmdArgs->server_address,
 //                                                    port + i));
             if (m_cmdArgs->use_mtls) {
                 auto config = oatpp::openssl::Config::createShared();
-                OATPP_LOGd(__func__, "certificate file name =", m_cmdArgs->server_cert_filename);
+                OATPP_LOGd(__func__, "certificate file name = {}", m_cmdArgs->server_cert_filename);
                 config->addContextConfigurer(
                         std::make_shared<oatpp::openssl::configurer::CertificateChainFile>(m_cmdArgs->server_cert_filename));
-                OATPP_LOGd(__func__, "private key  file name =", m_cmdArgs->private_key_filename);
+                OATPP_LOGd(__func__, "private key  file name = {}", m_cmdArgs->private_key_filename);
                 config->addContextConfigurer(
                         std::make_shared<oatpp::openssl::configurer::PrivateKeyFile>(m_cmdArgs->private_key_filename));
-                OATPP_LOGd(__func__, "ca file name =", m_cmdArgs->ca_key_file_name);
+                OATPP_LOGd(__func__, "ca file name = {} ", m_cmdArgs->ca_key_file_name);
                 config->addContextConfigurer(
                         // need to add the directory later
                         std::make_shared<oatpp::openssl::configurer::TrustStore>(m_cmdArgs->ca_key_file_name, nullptr));
