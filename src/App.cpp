@@ -47,9 +47,9 @@ void run(int argc, const char * argv[]) {
 //            SSL_CTX_set_min_proto_version(ctx, TLS1_3_VERSION);
 //            SSL_CTX_set_max_proto_version(ctx, TLS1_3_VERSION);
 //    
-//            if (SSL_CTX_use_certificate_file(ctx, m_cmdArgs->cert_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
+//            if (SSL_CTX_use_certificate_file(ctx, m_cmdArgs->server_cert_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
 //                ERR_print_errors_fp(stderr);
-//                OATPP_LOGe(__func__, "Error in SSL_CTX_use_certificate_file {}", m_cmdArgs->cert_filename)
+//                OATPP_LOGe(__func__, "Error in SSL_CTX_use_certificate_file {}", m_cmdArgs->server_cert_filename)
 //                exit(EXIT_FAILURE);
 //            }
 //            if (SSL_CTX_use_PrivateKey_file(ctx, m_cmdArgs->private_key_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {

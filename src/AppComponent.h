@@ -56,7 +56,7 @@ public:
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor)([] {
         OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
         //OATPP_LOGd(__func__, " {}", __LINE__)
-        OATPP_LOGd(__func__, "certificate file name =", m_cmdArgs->cert_filename);
+        OATPP_LOGd(__func__, "certificate file name =", m_cmdArgs->server_cert_filename);
 
         return std::make_shared<oatpp::async::Executor>(
                 m_cmdArgs->number_of_worker_threads, /* Data-Processing threads */
@@ -102,9 +102,9 @@ public:
 //                                                    port + i));
             if (m_cmdArgs->use_mtls) {
                 auto config = oatpp::openssl::Config::createShared();
-                OATPP_LOGd(__func__, "certificate file name =", m_cmdArgs->cert_filename);
+                OATPP_LOGd(__func__, "certificate file name =", m_cmdArgs->server_cert_filename);
                 config->addContextConfigurer(
-                        std::make_shared<oatpp::openssl::configurer::CertificateChainFile>(m_cmdArgs->cert_filename));
+                        std::make_shared<oatpp::openssl::configurer::CertificateChainFile>(m_cmdArgs->server_cert_filename));
                 OATPP_LOGd(__func__, "private key  file name =", m_cmdArgs->private_key_filename);
                 config->addContextConfigurer(
                         std::make_shared<oatpp::openssl::configurer::PrivateKeyFile>(m_cmdArgs->private_key_filename));
