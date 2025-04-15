@@ -60,6 +60,7 @@ struct Config {
         mtls_base_port = (uint16_t)EnvUtils::getEnvInt("WSS_MTLS_BASE_PORT", 8443);
         private_key_filename = EnvUtils::getEnvString("WSS_PRIVATE_KEY_FILE_NAME", "server.key");
         server_cert_filename = EnvUtils::getEnvString("WSS_SERVER_CERTIFICATE_FILE_NAME", "server.crt");
+        server_phrase = EnvUtils::getEnvString("WSS_SERVER_PHRASE", "1234567890");
     
         OATPP_LOGi(__func__, "WSS_CA_FILE_NAME {} ", ca_key_file_name)
         OATPP_LOGi(__func__, "WSS_MTLS_BASE_PORT {} ", mtls_base_port)
@@ -93,6 +94,7 @@ struct Config {
     std::string cert_dirname;
     std::string private_key_filename;
     std::string ca_key_file_name;
+    std::string server_phrase;
     
 };
 

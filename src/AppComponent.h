@@ -20,6 +20,8 @@
 #include "oatpp-1.4.0/oatpp-openssl/oatpp-openssl/server/ConnectionProvider.hpp"
 
 #include "openssl/tls1.h"
+#include "openssl/ssl.h"
+#include "openssl/err.h"
 #include "oatpp/network/Address.hpp"
 #include "oatpp/json/ObjectMapper.hpp"
 #include <oatpp/macro/component.hpp>
@@ -38,6 +40,14 @@
 
 #include "client/RestClient.h"
 
+int passwordCB(char* buffer, int size, int rw_flag, void* user_data) {
+    const std::string* pass = static_cast<std::string*>(user_data);
+    if (pass->size() > static_cast<size_t>(size)) {
+        return 0;
+    }
+    std::strncpy(buffer, pass->c_str(), size);
+    return static_cast<int>(pass->length());    
+}
 
 
 class AppComponent {
@@ -77,7 +87,59 @@ public:
     if (m_cmdArgs->use_mtls) {
         port = m_cmdArgs->mtls_base_port;
     }
-    for (v_uint8 i = 0; i < m_cmdArgs->number_of_ports; i++) {
+    
+    // create ssl context 
+    //initialize openssl
+    SSL_load_error_strings();
+    OpenSSL_add_ssl_algorithms();
+    
+    // manually create the context
+    const SSL_METHOD* method = TLS_server_method();
+    SSL_CTX* ctx = SSL_CTX_new(method);
+    if (!ctx) {
+        char errMsg[256];
+        ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
+        OATPP_LOGe(TAG, "Failed to create SSL_CTX = {}", errMsg)
+        exit(-1);
+    }
+    //set call back and phrase 
+    SSL_CTX_set_default_passwd_cb(ctx, passwordCB);
+    SSL_CTX_set_default_passwd_cb_userdata(ctx, &m_cmdArgs->server_phrase);
+    
+    //load keys and certificates
+      if (SSL_CTX_use_certificate_file(ctx, m_cmdArgs->server_cert_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
+          char errMsg[256];
+          ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
+          OATPP_LOGe(TAG, "Failed to load - {} file, err= {}", m_cmdArgs->server_cert_filename, errMsg)
+          exit(-1);
+      }
+    
+      if (SSL_CTX_use_PrivateKey_file(ctx, m_cmdArgs->private_key_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
+          char errMsg[256];
+          ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
+          OATPP_LOGe(TAG, "Failed to load private key - {} file, err= {}", m_cmdArgs->private_key_filename, errMsg)
+          exit(-1);
+      }
+    
+      if (SSL_CTX_load_verify_locations(ctx, m_cmdArgs->ca_key_file_name.c_str(), nullptr) <= 0) {
+          char errMsg[256];
+          ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
+          OATPP_LOGe(TAG, "Failed to load verify locations - {} file, err= {}", m_cmdArgs->ca_key_file_name, errMsg)
+          exit(-1);
+      }
+    
+      if (!SSL_CTX_check_private_key(ctx)) {
+          char errMsg[256];
+          ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
+          OATPP_LOGe(TAG, "Failed to SSL_CTX_check_private_key, err= {}", errMsg)
+          exit(-1);
+      }
+    
+      SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
+      SSL_CTX_set_verify_depth(ctx, 5); // certification chin limitation
+      
+      
+      for (v_uint8 i = 0; i < m_cmdArgs->number_of_ports; i++) {
         // if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4) {
         //     ip_addr = base_ip + "." + std::to_string(i);
         // } else {
@@ -102,13 +164,15 @@ public:
 //                                                    port + i));
             if (m_cmdArgs->use_mtls) {
                 auto config = oatpp::openssl::Config::createShared();
-                OATPP_LOGd(__func__, "certificate file name = {}", m_cmdArgs->server_cert_filename);
+                config->configureContext(ctx);
+/*
+                //OATPP_LOGd(__func__, "certificate file name = {}", m_cmdArgs->server_cert_filename);
                 config->addContextConfigurer(
                         std::make_shared<oatpp::openssl::configurer::CertificateChainFile>(m_cmdArgs->server_cert_filename));
-                OATPP_LOGd(__func__, "private key  file name = {}", m_cmdArgs->private_key_filename);
+                //OATPP_LOGd(__func__, "private key  file name = {}", m_cmdArgs->private_key_filename);
                 config->addContextConfigurer(
                         std::make_shared<oatpp::openssl::configurer::PrivateKeyFile>(m_cmdArgs->private_key_filename));
-                OATPP_LOGd(__func__, "ca file name = {} ", m_cmdArgs->ca_key_file_name);
+                //OATPP_LOGd(__func__, "ca file name = {} ", m_cmdArgs->ca_key_file_name);
                 config->addContextConfigurer(
                         // need to add the directory later
                         std::make_shared<oatpp::openssl::configurer::TrustStore>(m_cmdArgs->ca_key_file_name, nullptr));
@@ -116,6 +180,7 @@ public:
                 config->addContextConfigurer(
                         std::make_shared<oatpp::openssl::configurer::PeerCertificateVerification>(
                                 oatpp::openssl::configurer::CertificateVerificationMode::EnabledStrong));
+*/
                 providers->push_back(oatpp::openssl::server::ConnectionProvider::createShared(config,
                                           oatpp::network::Address(m_cmdArgs->server_address, port + i)));
             } else {
