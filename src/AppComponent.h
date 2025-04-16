@@ -37,17 +37,9 @@
 #include "ScyllaDBManager.h"
 #include "utilis/env.h"
 #include "utilis/split.h"
+#include "utilis/sslContext.h"
 
 #include "client/RestClient.h"
-
-int passwordCB(char* buffer, int size, int rw_flag, void* user_data) {
-    const std::string* pass = static_cast<std::string*>(user_data);
-    if (pass->size() > static_cast<size_t>(size)) {
-        return 0;
-    }
-    std::strncpy(buffer, pass->c_str(), size);
-    return static_cast<int>(pass->length());    
-}
 
 
 class AppComponent {
@@ -79,7 +71,7 @@ public:
    */
   
   
-  OATPP_CREATE_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders)([this] {
+  OATPP_CREATE_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders) ([this] {
     auto providers = std::make_shared<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>();
     OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
     auto port = m_cmdArgs->base_port;
@@ -89,56 +81,10 @@ public:
     
     // create ssl context 
     //initialize openssl
-    SSL_load_error_strings();
-    OpenSSL_add_ssl_algorithms();
-    
-    // manually create the context
-    const SSL_METHOD* method = TLS_server_method();
-    SSL_CTX* ctx = SSL_CTX_new(method);
-    if (!ctx) {
-        char errMsg[256];
-        ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
-        OATPP_LOGe(TAG, "Failed to create SSL_CTX = {}", errMsg)
-        exit(-1);
-    }
-    //set call back and phrase 
-    SSL_CTX_set_default_passwd_cb(ctx, passwordCB);
-    SSL_CTX_set_default_passwd_cb_userdata(ctx, &m_cmdArgs->server_phrase);
-    
-    //load keys and certificates
-      if (SSL_CTX_use_certificate_file(ctx, m_cmdArgs->server_cert_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
-          char errMsg[256];
-          ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
-          OATPP_LOGe(TAG, "Failed to load - {} file, err= {}", m_cmdArgs->server_cert_filename, errMsg)
-          exit(-1);
-      }
-    
-      if (SSL_CTX_use_PrivateKey_file(ctx, m_cmdArgs->private_key_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
-          char errMsg[256];
-          ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
-          OATPP_LOGe(TAG, "Failed to load private key - {} file, err= {}", m_cmdArgs->private_key_filename, errMsg)
-          exit(-1);
-      }
-    
-      if (SSL_CTX_load_verify_locations(ctx, m_cmdArgs->ca_key_file_name.c_str(), nullptr) <= 0) {
-          char errMsg[256];
-          ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
-          OATPP_LOGe(TAG, "Failed to load verify locations - {} file, err= {}", m_cmdArgs->ca_key_file_name, errMsg)
-          exit(-1);
-      }
-    
-      if (!SSL_CTX_check_private_key(ctx)) {
-          char errMsg[256];
-          ERR_error_string_n(ERR_get_error(), errMsg, sizeof(errMsg));
-          OATPP_LOGe(TAG, "Failed to SSL_CTX_check_private_key, err= {}", errMsg)
-          exit(-1);
-      }
-    
-      SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
-      SSL_CTX_set_verify_depth(ctx, 5); // certification chin limitation
-      
-      
-      for (v_uint8 i = 0; i < m_cmdArgs->number_of_ports; i++) {
+        SSL_CTX *ctx = getSSLContext(m_cmdArgs);
+        
+        
+        for (v_uint8 i = 0; i < m_cmdArgs->number_of_ports; i++) {
         // if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4) {
         //     ip_addr = base_ip + "." + std::to_string(i);
         // } else {

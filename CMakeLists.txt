@@ -22,7 +22,7 @@ add_library(${project_name}-lib
         src/websocket/WebSocketComponents.h
         src/controler/WsController.h
         src/ScyllaDBManager.h 
-        src/client/RestClient.h)
+        src/client/RestClient.h src/utilis/sslContext.h)
 
 ## link libs
 
@@ -54,7 +54,7 @@ add_executable(${project_name}-exe
         src/websocket/WebSocketListener.cpp 
         src/websocket/WebSocketListener.h 
         src/client/RestClient.h
-        src/utilis/split.h src/config.h)
+        src/utilis/split.h src/config.h src/utilis/sslContext.h)
 target_link_libraries(${project_name}-exe ${project_name}-lib)
 add_dependencies(${project_name}-exe ${project_name}-lib)
 
