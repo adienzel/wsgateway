@@ -9,7 +9,8 @@
 #include <utility>
 #include <future>
 #include "../client/RestClient.h"
-#include "utilis/boostBeastAsyncClient.h"
+//#include "utilis/boostBeastAsyncClient.h"
+#include "utilis/boostBeastClient.h"
 #include "utilis/messageDTO.h"
 #include "config.h" 
 
@@ -64,11 +65,9 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         OATPP_LOGd(TAG, "onMessage to client {} message={}", clientID, wholeMessage);
     
         //dispatch messages to apps
-        ioc_->restart();
-    
-        std::make_shared<session>(*ioc_)->run(http_server_address_.c_str(), http_server_port_.c_str(), wholeMessage, clientID, &t);
-    
-        ioc_->run();
+        
+        //std::make_shared<session>(*ioc_)->run(http_server_address_.c_str(), http_server_port_.c_str(), wholeMessage, clientID, &t);
+        sendHttpReqSync(wholeMessage, http_server_address_, http_server_port_, clientID, &t);
         return nullptr;
         //this is echo direct from websocket
         //return socket->sendOneFrameTextAsync("Hello from oatpp!: " + wholeMessage);

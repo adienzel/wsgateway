@@ -20,7 +20,7 @@ class WebSocketListener : public oatpp::websocket::AsyncWebSocket::Listener {
 public:
     explicit WebSocketListener(const oatpp::String& id, const std::shared_ptr<boost::asio::io_context>& ioc, std::string& host, std::string& port) : 
          clientID(id),  ioc_(ioc), http_server_address_(host), http_server_port_(port) {
-        ioc_->reset();
+        ioc_->restart();
     }
     /**
      * Called on "ping" frame.
