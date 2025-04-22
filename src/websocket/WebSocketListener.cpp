@@ -9,6 +9,7 @@
 #include <utility>
 #include <future>
 #include "../client/RestClient.h"
+#include "utilis/boostBeastAsyncClient.h"
 #include "utilis/messageDTO.h"
 #include "config.h" 
 
@@ -41,28 +42,6 @@ oatpp::async::CoroutineStarter WebSocketListener::onClose(const std::shared_ptr<
     return nullptr; // do nothing
 }
 
-std::future<std::shared_ptr<oatpp::web::protocol::http::incoming::Response>> asyncRestRequest(const oatpp::String& jsonString) {
-    std::promise<std::shared_ptr<oatpp::web::protocol::http::incoming::Response>> promise;
-    auto future = promise.get_future();
-    // Perform the request in a separate thread 
-    auto t = std::thread([jsonString, promise = std::move(promise)]() mutable {
-        try {
-            OATPP_COMPONENT(std::shared_ptr<oatpp::web::client::RequestExecutor>, requestExecutor, "clientExcecutor");
-//            auto requestExecutor = std::make_shared<oatpp::web::client::HttpRequestExecutor>(" "); //::createShared("http://your-api-endpoint.com");
-            // Create a DTO for the request body 
-            //requestExecutor            // Execute POST request 
-            oatpp::web::protocol::http::Headers headers;
-            auto body = oatpp::web::protocol::http::outgoing::BufferBody::createShared(jsonString);
-            auto response = requestExecutor->execute("POST", "/your-endpoint", headers, body, nullptr);
-            // Fulfill the promise with the response 
-            promise.set_value(response);
-        } catch (...) { 
-            // Set exception in promise if any 
-            promise.set_exception(std::current_exception());
-        }
-    });
-    return future;
-}
 
 oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_ptr<AsyncWebSocket>& socket,
                                                               v_uint8 opcode, 
@@ -76,25 +55,23 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         }
         struct timespec t {0,0};
         clock_gettime(CLOCK_MONOTONIC, &t);
-        auto wholeMessage = m_messageBuffer.toString();
+        //auto wholeMessage = m_messageBuffer.toString();
         m_messageBuffer.setCurrentPosition(0);
-        auto objectMapper = std::make_shared<oatpp::json::ObjectMapper>(); 
-        auto json = objectMapper->readFromString<oatpp::Object<JSON_message>>(m_messageBuffer.toString());
-
-        if (json->MessageType == "REQ") {
-            json->WsUpSeconds = t.tv_sec;
-            json->WsUpNano  = t.tv_nsec;
-        } else if (json->MessageType == "RES") {
-            json->WsDnSeconds = t.tv_sec;
-            json->WsDnNano  = t.tv_nsec;
-        }
-        wholeMessage = objectMapper->writeToString(json);
-        OATPP_LOGd(TAG, "onMessage to client {} message={}", clientID, wholeMessage->c_str());
+        auto wholeMessage = m_messageBuffer.toString();
+        //auto wholeMessage = (std::string*)m_messageBuffer.getData();
     
-        //TODO dispatch messages to apps
+      
+        OATPP_LOGd(TAG, "onMessage to client {} message={}", clientID, wholeMessage);
     
-        /* Send message in reply */
-        return socket->sendOneFrameTextAsync("Hello from oatpp!: " + wholeMessage);
+        //dispatch messages to apps
+        ioc_->restart();
+    
+        std::make_shared<session>(*ioc_)->run(http_server_address_.c_str(), http_server_port_.c_str(), wholeMessage, clientID, &t);
+    
+        ioc_->run();
+        return nullptr;
+        //this is echo direct from websocket
+        //return socket->sendOneFrameTextAsync("Hello from oatpp!: " + wholeMessage);
     } else if (size > 0) { // message frame received
         m_messageBuffer.writeSimple(data, size);
     }
@@ -150,16 +127,24 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
     OATPP_LOGd(TAG, "New Incoming Connection. Connection count={}", SOCKETS.load())
     OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
     
+    std::string common_name = {};
     if (m_cmdArgs->use_mtls) {
         auto connection = std::dynamic_pointer_cast<oatpp::openssl::Connection>(socket->getConnection().object);
         if (connection) {
-            SSL* ssl = connection->getOpenSSLContext();
+            SSL const* ssl = connection->getOpenSSLContext();
             if (ssl) {
                 X509* cert = SSL_get_peer_certificate(ssl);
                 if (cert) {
-                    char* subjectName = X509_NAME_oneline(X509_get_subject_name(cert), 0, 0);
-                    if (subjectName) {
-                        OATPP_LOGd("Server", "Client Identity: %s", subjectName);
+                    X509_NAME* subject_name = X509_get_subject_name(cert);
+    
+                    char cn[256];
+                    X509_NAME_get_text_by_NID(subject_name, NID_commonName, cn, sizeof(cn));
+                    common_name = cn;
+                    char on[256];
+                    X509_NAME_get_text_by_NID(subject_name, NID_organizationName, on, sizeof(on));
+                    OATPP_LOGd(__func__, "CN = {}, ON= {}", cn, on)
+                    if (char *subjectName = X509_NAME_oneline(subject_name, nullptr, 0)) {
+                        OATPP_LOGd(__func__, "Client Identity: {}", subjectName)
                         OPENSSL_free(subjectName);
                     }
                     X509_free(cert);
@@ -168,29 +153,15 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
         }
     }
     
-    /* In this particular case we create one WSListener per each connection */
-    /* Which may be redundant in many cases */
-    auto clientIdParam = params->find("ClientId");
-    if (clientIdParam == params->end()) {
-        OATPP_LOGe(TAG, "ClientId paramter not found")
-        std::string str = "no ClientId";
-        socket->sendCloseAsync(1, str);
-    }
-    auto clientId = clientIdParam->second;
-    if (clientId->empty()) {
-        std::string str = "ClientId paramter is empty";
-        OATPP_LOGe(TAG, str)
-        socket->sendCloseAsync(2, str);
-    
-    }
     // register the soket by client id
     if (webSocketComponent == nullptr) {
         webSocketComponent = &WebSocketComponent::getInstance();
     }
     
-    webSocketComponent->addClient(clientId, socket);
+    webSocketComponent->addClient(common_name, socket);
     //allocate listener per connection
-    socket->setListener(std::make_shared<WebSocketListener>(clientId));
+    auto ioc = std::make_shared<boost::asio::io_context>();
+    socket->setListener(std::make_shared<WebSocketListener>(common_name, ioc, m_cmdArgs->http_request_address, m_cmdArgs->http_request_port));
 }
 
 void WSInstanceListener::onBeforeDestroy_NonBlocking(const std::shared_ptr<WebSocketListener::AsyncWebSocket>& socket) {

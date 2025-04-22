@@ -12,11 +12,16 @@
 #include <oatpp/async/Executor.hpp>
 #include <oatpp/json/ObjectMapper.hpp>
 #include "WebSocketComponents.h"
+#include <boost/beast/core.hpp>
+#include <boost/beast/http.hpp>
 
 
 class WebSocketListener : public oatpp::websocket::AsyncWebSocket::Listener {
 public:
-    explicit WebSocketListener(oatpp::String const& id) : clientID(id) {}
+    explicit WebSocketListener(const oatpp::String& id, const std::shared_ptr<boost::asio::io_context>& ioc, std::string& host, std::string& port) : 
+         clientID(id),  ioc_(ioc), http_server_address_(host), http_server_port_(port) {
+        ioc_->reset();
+    }
     /**
      * Called on "ping" frame.
      */
@@ -43,7 +48,12 @@ private:
      * Buffer for messages. Needed for multi-frame messages.
      */
     oatpp::data::stream::BufferOutputStream m_messageBuffer;
-    oatpp::String clientID;
+    std::string clientID;
+    std::shared_ptr<boost::asio::io_context> ioc_ = nullptr;
+    std::string http_server_address_;
+    std::string http_server_port_;
+    
+    
     WebSocketComponent* webSocketComponent = nullptr;
     
     void sendToRestServer(const oatpp::String& version, const oatpp::String& vin);
