@@ -34,9 +34,8 @@ static void sendHttpReqSync(std::string const& msg, std::string const& host, std
             req.set(header, value);
         }
         
-        //time of arrival from WS client
-        req.set("X-Arrived-Client-sec", std::to_string(t->tv_sec));
-        req.set("X-Arrived-CVlient-nano", std::to_string(t->tv_nsec));
+        //time of arrival from WS client in nanosecods
+        req.set("X-Arrived-Client-time", std::to_string(t->tv_sec * 1000000000 + t->tv_nsec));
     
         if (!body.empty()) {
             req.body() = body;
@@ -62,8 +61,7 @@ static void sendHttpReqSync(std::string const& msg, std::string const& host, std
         struct timespec tr {0, 0};
         clock_gettime(CLOCK_MONOTONIC, &tr);
     
-        res.set("X-Res-sec", std::to_string(tr.tv_sec));
-        res.set("X-Res-Client-nano", std::to_string(tr.tv_nsec));
+        res.set("X-Return-time", std::to_string(tr.tv_sec * 1000000000 + tr.tv_nsec));
         
         boost::beast::error_code ec;
         stream.socket().shutdown(tcp::socket::shutdown_both, ec);

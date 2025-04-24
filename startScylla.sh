@@ -1,7 +1,8 @@
 #!/bin/bash
 
 START=0
-STOP=${SCYLLA_LAST_NODE:-5}
+#number scylladb servers = SCYLLA_LAST_NODE + 1 -- 2 means 3 servers
+STOP=${SCYLLA_LAST_NODE:-2}
 
 # Add scyllaDB docker nodes
 for i in $(seq $START $STOP); do
