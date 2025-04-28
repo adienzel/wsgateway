@@ -125,6 +125,19 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
     SOCKETS ++;
     OATPP_LOGd(TAG, "New Incoming Connection. Connection count={}", SOCKETS.load())
     OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
+    auto clientIdParam = params->find("ClientId");
+    if (clientIdParam == params->end()) {
+        OATPP_LOGe(TAG, "ClientId paramter not found")
+        std::string str = "no ClientId";
+        socket->sendCloseAsync(1, str);
+    }
+    auto clientId = clientIdParam->second;
+    if (clientId->empty()) {
+        std::string str = "ClientId paramter is empty";
+        OATPP_LOGe(TAG, str)
+        socket->sendCloseAsync(2, str);
+        
+    }
     
     std::string common_name = {};
     if (m_cmdArgs->use_mtls) {
@@ -157,10 +170,16 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
         webSocketComponent = &WebSocketComponent::getInstance();
     }
     
-    webSocketComponent->addClient(common_name, socket);
+    //use the vin from ssl
+//    webSocketComponent->addClient(common_name, socket);
+    //use vin from path
+    webSocketComponent->addClient(clientId, socket);
     //allocate listener per connection
     auto ioc = std::make_shared<boost::asio::io_context>();
-    socket->setListener(std::make_shared<WebSocketListener>(common_name, ioc, m_cmdArgs->http_request_address, m_cmdArgs->http_request_port));
+    //use the vin from ssl
+    //socket->setListener(std::make_shared<WebSocketListener>(common_name, ioc, m_cmdArgs->http_request_address, m_cmdArgs->http_request_port));
+    //use vin from path
+    socket->setListener(std::make_shared<WebSocketListener>(clientId, ioc, m_cmdArgs->http_request_address, m_cmdArgs->http_request_port));
 }
 
 void WSInstanceListener::onBeforeDestroy_NonBlocking(const std::shared_ptr<WebSocketListener::AsyncWebSocket>& socket) {
