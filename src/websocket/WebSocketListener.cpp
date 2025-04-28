@@ -123,7 +123,7 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
                                                    const std::shared_ptr<const ParameterMap>& params) {
     
     SOCKETS ++;
-    OATPP_LOGd(TAG, "New Incoming Connection. Connection count={}", SOCKETS.load())
+    OATPP_LOGi(TAG, "New Incoming Connection. Connection count={}", SOCKETS.load())
     OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
     auto clientIdParam = params->find("ClientId");
     if (clientIdParam == params->end()) {
