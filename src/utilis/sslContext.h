@@ -20,6 +20,52 @@ int passwordCB(char* buffer, int size, int rw_flag, void* user_data) {
 }
 
 
+static void printStateCB(const SSL *ssl, int type, int val) {
+    const char *str = SSL_state_string_long(ssl);
+    std::string strType = "";
+    if (type & SSL_CB_ALERT) {
+        strType += "SSL_CB_ALERT";
+    }
+    if (type & SSL_CB_EXIT) {
+        strType += " SSL_CB_EXIT";
+    }
+    if (type & SSL_CB_LOOP) {
+        strType += " SSL_CB_LOOP";
+    }
+    if (type & SSL_CB_READ) {
+        strType += " SSL_CB_READ";
+    }
+    if (type & SSL_CB_WRITE) {
+        strType += " SSL_CB_WRITE";
+    }
+    if (type & SSL_CB_ACCEPT_EXIT) {
+        strType += " SSL_CB_ACCEPT_EXIT";
+    }
+    if (type & SSL_CB_ACCEPT_LOOP) {
+        strType += " SSL_CB_ACCEPT_LOOP";
+    }
+    if (type & SSL_CB_CONNECT_EXIT) {
+        strType += " SSL_CB_CONNECT_EXIT";
+    }
+    if (type & SSL_CB_CONNECT_LOOP) {
+        strType += " SSL_CB_CONNECT_LOOP";
+    }
+    if (type & SSL_CB_HANDSHAKE_DONE) {
+        strType += " SSL_CB_HANDSHAKE_DONE";
+    }
+    if (type & SSL_CB_HANDSHAKE_START) {
+        strType += " SSL_CB_HANDSHAKE_START";
+    }
+    if (type & SSL_CB_READ_ALERT) {
+        strType += " SSL_CB_READ_ALERT";
+    }
+    if (type & SSL_CB_WRITE_ALERT) {
+        strType += " SSL_CB_WRITE_ALERT";
+    }
+    OATPP_LOGi(__func__, "SSL state: {} and type = {} val = {}", str, strType, val)
+    //printf("SSL state: %s and type = %s val = %d\n", str, strType.c_str(), val);
+}
+
 SSL_CTX* getSSLContext(const std::shared_ptr<Config> &m_cmdArgs) {
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
@@ -66,11 +112,15 @@ SSL_CTX* getSSLContext(const std::shared_ptr<Config> &m_cmdArgs) {
         exit(-1);
     }
     
+    
+    
     //SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
     SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
     SSL_CTX_set_verify_depth(ctx, 5); // certification chin limitation
+
+    SSL_CTX_set_info_callback(ctx, printStateCB);
     
-    return ctx;
+return ctx;
 }
 
 #endif //VGATEWAY_SSLCONTEXT_H
