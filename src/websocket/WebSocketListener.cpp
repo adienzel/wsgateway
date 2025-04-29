@@ -67,8 +67,11 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         //dispatch messages to apps
         
         //std::make_shared<session>(*ioc_)->run(http_server_address_.c_str(), http_server_port_.c_str(), wholeMessage, clientID, &t);
-        sendHttpReqSync(wholeMessage, http_server_address_, http_server_port_, clientID, &t);
-        return nullptr;
+        auto response =  sendHttpReqSync(wholeMessage, http_server_address_, http_server_port_, clientID, &t);
+        if (!response.empty()) {
+            socket->sendOneFrameTextAsync(response);
+        }
+        //return nullptr;
         //this is echo direct from websocket
         //return socket->sendOneFrameTextAsync("Hello from oatpp!: " + wholeMessage);
     } else if (size > 0) { // message frame received

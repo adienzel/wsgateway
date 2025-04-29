@@ -23,17 +23,20 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
 
 
-static void sendHttpReqSync(std::string const& msg, std::string const& host, std::string const& port,  std::string const& vin, const struct timespec* t) {
-        auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
+static std::string sendHttpReqSync(std::string const& msg, std::string const& host, std::string const& port,  std::string const& vin, const struct timespec* t) {
+    OATPP_LOGi(__func__, "line {}", __LINE__)
+    auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
         http::request<http::string_body> req;
         req.method(boost::beast::http::string_to_verb(method));
         req.version(version == "1.1" ? 11 : 0);
         req.target(url);
+    OATPP_LOGi(__func__, "line {}", __LINE__)
     
         for (auto const& [header, value] : headers) {
             req.set(header, value);
         }
-        
+    
+    OATPP_LOGi(__func__, "line {}", __LINE__)
         //time of arrival from WS client in nanosecods
         req.set("X-Arrived-Client-time", std::to_string(t->tv_sec * 1000000000 + t->tv_nsec));
     
@@ -42,6 +45,7 @@ static void sendHttpReqSync(std::string const& msg, std::string const& host, std
             //auto content_length = req.find("Content-Length");
             req.prepare_payload();
         }
+    OATPP_LOGi(__func__, "line {}", __LINE__)
     
     
         boost::asio::io_context ioc;
@@ -50,27 +54,35 @@ static void sendHttpReqSync(std::string const& msg, std::string const& host, std
         
         auto const results = resolver.resolve(host, port);
         stream.connect(results);
+    OATPP_LOGi(__func__, "line {}", __LINE__)
         
         http::write(stream, req);
     
+    OATPP_LOGi(__func__, "line {}", __LINE__)
         boost::beast::flat_buffer  buffer;
         http::response<http::string_body> res;
         
         http::read(stream, buffer, res);
+    OATPP_LOGi(__func__, "line {}", __LINE__)
         
         struct timespec tr {0, 0};
         clock_gettime(CLOCK_MONOTONIC, &tr);
     
         res.set("X-Return-time", std::to_string(tr.tv_sec * 1000000000 + tr.tv_nsec));
+    OATPP_LOGi(__func__, "line {}", __LINE__)
         
         boost::beast::error_code ec;
         stream.socket().shutdown(tcp::socket::shutdown_both, ec);
+    OATPP_LOGi(__func__, "line {}", __LINE__)
     
         auto response = buildResponseStringBuffer(res);
     
-        auto webSocketComponent = &WebSocketComponent::getInstance();
-        //send response to websocket client
-        webSocketComponent->sendTextMessageToClient(vin, response);
+    OATPP_LOGi(__func__, "line {}", __LINE__)
+    return response;
+//        auto webSocketComponent = &WebSocketComponent::getInstance();
+//        //send response to websocket client
+//        webSocketComponent->sendTextMessageToClient(vin, response);
+//    OATPP_LOGi(__func__, "line {}", __LINE__)
 }
 
 
