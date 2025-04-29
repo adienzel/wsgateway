@@ -75,38 +75,16 @@ public:
     auto providers = std::make_shared<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>();
     OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
     auto port = m_cmdArgs->base_port;
+    SSL_CTX *ctx;
     if (m_cmdArgs->use_mtls) {
         port = m_cmdArgs->mtls_base_port;
+        ctx = getSSLContext(m_cmdArgs);
     }
     
-    // create ssl context 
-    //initialize openssl
-        SSL_CTX *ctx = getSSLContext(m_cmdArgs);
-        
-        
-        for (v_uint8 i = 0; i < m_cmdArgs->number_of_ports; i++) {
-        // if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4) {
-        //     ip_addr = base_ip + "." + std::to_string(i);
-        // } else {
-        //     ip_addr = base_ip + "::" + std::to_string(i); 
-        // }
-        
-        // if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_6 && !is_valid_ipv6(ip_addr)) {
-        //     // cppcheck-suppress unknownMacro
-        //     OATPP_LOGe(TAG, "IP address is not IPv6 {} address", ip_addr)
-        //     exit(-1);
-        // } else if (m_cmdArgs->network_family_type == oatpp::network::Address::Family::IP_4 && !isValidIPv4(ip_addr)) {
-        //     OATPP_LOGe(TAG, "IP address is not IPv4 {} address", ip_addr)
-        //     exit(-1);
-        // }
-        
+    for (v_uint8 i = 0; i < m_cmdArgs->number_of_ports; i++) {
         try {
-            
             OATPP_LOGd("AppComponent", "Connection Provider for address: {}:{}", m_cmdArgs->server_address, port + i)
             
-//            auto provider = oatpp::openssl::server::ConnectionProvider::createShared()createShared(
-//                            oatpp::network::Address(m_cmdArgs->server_address,
-//                                                    port + i));
             if (m_cmdArgs->use_mtls) {
                 auto config = oatpp::openssl::Config::createShared();
                 config->configureContext(ctx);
@@ -129,9 +107,6 @@ public:
                 providers->push_back(oatpp::openssl::server::ConnectionProvider::createShared(config,
                                           oatpp::network::Address(m_cmdArgs->server_address, port + i)));
             } else {
-//                auto provider = oatpp::network::tcp::server::ConnectionProvider::createShared(
-//                        oatpp::network::Address(m_cmdArgs->server_address,
-//                                                port + i));
                 providers->push_back(oatpp::network::tcp::server::ConnectionProvider::createShared(
                                oatpp::network::Address(m_cmdArgs->server_address, port + i)));
             }
@@ -142,7 +117,7 @@ public:
         }
     }
     return providers;
-    }());
+  }());
   
 
     /**
