@@ -131,18 +131,6 @@ void run(int argc, const char * argv[]) {
             thread.join();
         }
             
-    //     /* Get connection provider component */
-    //     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, connectionProvider);
-    //     /* Create server which takes provided TCP connections and passes them to HTTP connection handler */
-    //     oatpp::network::Server server(connectionProvider, connectionHandler);
-        
-    //     /* Priny info about server port */
-    // //    OATPP_LOGi("MyApp", "Server running on port {}", connectionProvider->getProperty("port").getData());
-    //     auto port = (v_int16)oatpp::utils::Conversion::strToInt32(args.getNamedArgumentValue("--port", "8020" /* default value */));
-    //     OATPP_LOGi("MyApp", "Server running on port {}", port)
-        
-    //     /* Run server */
-    //     server.run();
     } catch (const std::exception& e) {
             OATPP_LOGe(__func__, "thread fail {}", e.what())
     }

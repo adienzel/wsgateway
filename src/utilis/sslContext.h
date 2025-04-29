@@ -66,7 +66,8 @@ SSL_CTX* getSSLContext(const std::shared_ptr<Config> &m_cmdArgs) {
         exit(-1);
     }
     
-    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
+    //SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
     SSL_CTX_set_verify_depth(ctx, 5); // certification chin limitation
     
     return ctx;
