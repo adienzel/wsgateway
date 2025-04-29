@@ -101,7 +101,13 @@ public:
         
         Action act() override {
             OATPP_LOGi("MyApp", "WS1")
+            auto params = std::make_shared<oatpp::network::ConnectionHandler::ParameterMap>();
+            (*params)["ClientId"] = "VIN1234567890";
+            (*params)["Id"] = "dummy";
+    
             auto response = oatpp::websocket::Handshaker::serversideHandshake(request->getHeaders(), controller->websocketConnectionHandler);
+            response->setConnectionUpgradeParameters(params);
+            
             return _return(response);
         }
         
