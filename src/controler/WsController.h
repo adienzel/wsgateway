@@ -100,14 +100,8 @@ public:
     ENDPOINT_ASYNC_INIT(WS1)
         
         Action act() override {
-            OATPP_LOGi("MyApp", "WS")
-            auto clienId = request->getPathVariable("ClientId");
-            auto id = request->getHeader("ClientId");
-            auto params = std::make_shared<oatpp::network::ConnectionHandler::ParameterMap>();
-            (*params)["ClientId"] = clienId;
-            (*params)["Id"] = id;
+            OATPP_LOGi("MyApp", "WS1")
             auto response = oatpp::websocket::Handshaker::serversideHandshake(request->getHeaders(), controller->websocketConnectionHandler);
-            response->setConnectionUpgradeParameters(params);
             return _return(response);
         }
         
@@ -119,7 +113,7 @@ public:
     ENDPOINT_ASYNC_INIT(WS)
         
         Action act() override {
-            OATPP_LOGi("MyApp", "WS")
+            OATPP_LOGi("MyApp", "WS/{clientId}")
             auto clienId = request->getPathVariable("ClientId");
             auto id = request->getHeader("ClientId");
             auto params = std::make_shared<oatpp::network::ConnectionHandler::ParameterMap>();
