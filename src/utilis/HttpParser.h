@@ -22,9 +22,16 @@
  */
 static std::string buildResponseStringBuffer(const boost::beast::http::response<boost::beast::http::string_body>& res) {
     std::ostringstream oss;
-    oss << res.version() << " " << res.result_int() << " " << res.reason() << "\r\n";
+//    OATPP_LOGi(__func__, "result is : {}", res.)
+    std::string version;
+    switch (res.version()) {
+        case 10: version = "HTTP/1.0"; break;
+        case 11: version = "HTTP/1.1"; break;
+        default: version = "HTTP/" + std::to_string(res.version() / 10) + "." + std::to_string(res.version() % 10);
+    }
+    oss << version << " " << res.result_int() << " " << res.reason() << "\r\n";
     for (const auto& field : res) {
-        oss << field.name() << ": " << field.value() << "\r\n";
+        oss << field.name_string() << ": " << field.value() << "\r\n";
     }
     oss << "\r\n";
     oss << res.body();
