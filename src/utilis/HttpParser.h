@@ -56,8 +56,10 @@ auto createRequestFromBuffer(const std::string& buffer) {
     std::string headerLine;
     OATPP_LOGi(__func__, "line {}", __LINE__)
     while (std::getline(stream, headerLine) && !headerLine.empty()) {
+        OATPP_LOGi(__func__, "line {} headerline {} aa", __LINE__, headerLine)
         auto delimiterPos = headerLine.find(": ");
         if (delimiterPos == std::string::npos) {
+            OATPP_LOGi(__func__, "line {} headerline {} at deimiter {}", __LINE__, headerLine, delimiterPos)
             break;
         }
         auto headerName = headerLine.substr(0, delimiterPos);
