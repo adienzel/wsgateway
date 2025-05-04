@@ -90,7 +90,7 @@ static std::string sendHttpReqSync(std::string const& msg, std::string const& ho
     
         auto response = buildResponseStringBuffer(res);
     
-    OATPP_LOGi(__func__, "line {}", __LINE__)
+    OATPP_LOGi(__func__, "line {}, response = {} ", __LINE__, response)
     return response;
 //        auto webSocketComponent = &WebSocketComponent::getInstance();
 //        //send response to websocket client
