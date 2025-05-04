@@ -37,6 +37,11 @@ static std::string sendHttpReqSync(std::string const& msg, std::string const& ho
     OATPP_LOGi(__func__, "line {}", __LINE__)
     
         for (auto const& [header, value] : headers) {
+            if (header.find_first_of("\r\n") != std::string::npos || value.find_first_of("\r\n") != std::string::npos) {
+                OATPP_LOGe(__func__, "Invalid header: {}: {}", header, value);
+                continue; // Or sanitize/remove
+            }
+    
             req.set(header, value);
         }
     
@@ -49,6 +54,7 @@ static std::string sendHttpReqSync(std::string const& msg, std::string const& ho
             //auto content_length = req.find("Content-Length");
             req.prepare_payload();
         }
+        req.need_eof();
     OATPP_LOGi(__func__, "line {}", __LINE__)
     
     
