@@ -116,17 +116,6 @@ public:
         return oatpp::web::server::HttpRouter::createShared();
     }());
     
-    OATPP_CREATE_COMPONENT(std::shared_ptr<boost::asio::io_context>, io_context) ([] {
-        auto ioc =  std::make_shared<boost::asio::io_context>();
-        return ioc;
-    }());
-    
-    OATPP_CREATE_COMPONENT(std::shared_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>, workGuard) ([] {
-        OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc);
-        auto workGuard = std::make_shared<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>(
-                boost::asio::make_work_guard(*ioc));
-        return workGuard;
-    }());
 
     /**
      *  Create ConnectionHandler component which uses Router component to route requests
