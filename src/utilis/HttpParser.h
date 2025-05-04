@@ -42,7 +42,7 @@ static std::string buildResponseStringBuffer(const boost::beast::http::response<
  *      body string  
  */
 auto createRequestFromBuffer(const std::string& buffer) {
-    OATPP_LOGi(__func__, "line {} msg {}", __LINE__, buffer)
+    OATPP_LOGi(__func__, "line {} msg {} size = {}", __LINE__, buffer, buffer.size())
     std::istringstream stream(buffer);
     std::string method;
     std::string url;
@@ -59,6 +59,7 @@ auto createRequestFromBuffer(const std::string& buffer) {
         auto delimiterPos = headerLine.find(": ");
         auto headerName = headerLine.substr(0, delimiterPos);
         auto headerValue = headerLine.substr(delimiterPos + 2);
+        OATPP_LOGi(__func__, "line {} header {}, value {}", __LINE__, headerName, headerValue)
         auto [first, second] = headers.try_emplace(headerName, headerValue);
         if (!second) {
             OATPP_LOGe(__func__, "error insert header {} aleady added one", headerName) 
@@ -69,8 +70,9 @@ auto createRequestFromBuffer(const std::string& buffer) {
     //oatpp::web::protocol::http::
     std::streamsize contentLength = 0;
     if (headers.find("Content-Length") != headers.end()) {
+        OATPP_LOGi(__func__, "line {}", __LINE__)
         contentLength = std::stoi(headers["Content-Length"]);
-        body.insert(0, contentLength, '0');
+        //body.insert(0, contentLength, '0');
         stream.read(&body[0], contentLength);
     }
     OATPP_LOGi(__func__, "line {}", __LINE__)

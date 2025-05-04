@@ -60,9 +60,9 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         //m_messageBuffer.setCurrentPosition(0);
         auto wholeMessage = m_messageBuffer.toString();
         //auto wholeMessage = (std::string*)m_messageBuffer.getData();
-    
+        m_messageBuffer.reset();
       
-        OATPP_LOGd(TAG, "onMessage to client {} message={}", clientID, wholeMessage);
+        OATPP_LOGd(TAG, "readMessage to client {} message={}", clientID, wholeMessage);
     
         //dispatch messages to apps
         

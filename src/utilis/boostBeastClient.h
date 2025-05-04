@@ -31,7 +31,7 @@ static std::string sendHttpReqSync(std::string const& msg, std::string const& ho
     OATPP_LOGi(__func__, "line {}", __LINE__)
     req.method(boost::beast::http::string_to_verb(method));
     OATPP_LOGi(__func__, "line {}", __LINE__)
-    req.version(version == "1.1" ? 11 : 0);
+    req.version(version == "HTTP/1.1" ? 11 : 0);
     OATPP_LOGi(__func__, "line {}", __LINE__)
     req.target(url);
     OATPP_LOGi(__func__, "line {}", __LINE__)
