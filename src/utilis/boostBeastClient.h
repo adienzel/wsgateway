@@ -37,12 +37,12 @@ static std::string sendHttpReqSync(std::shared_ptr<std::string> msg, std::string
                 continue; // Or sanitize/remove
             }
     
-            req.set(header, value);
+            req->set(header, value);
         }
     
     OATPP_LOGi(__func__, "line {}", __LINE__)
         //time of arrival from WS client in nanosecods
-        req.set("X-Arrived-time", t);
+        req->set("X-Arrived-time", t);
     
         if (!body.empty()) {
             req.body() = body;
@@ -105,16 +105,16 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
         OATPP_LOGi(__func__, "line {}", __LINE__)
         auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
         OATPP_LOGi(__func__, "line {}", __LINE__)
-        http::request<http::string_body> req;
+        auto req = std::make_shared<http::request<http::string_body>>();
         OATPP_LOGi(__func__, "line {}", __LINE__)
-        req.method(boost::beast::http::string_to_verb(method));
+        req->method(boost::beast::http::string_to_verb(method));
         OATPP_LOGi(__func__, "line {}", __LINE__)
         if (version == "HTTP/1.1") {
-            req.version(11);
+            req->version(11);
         } else if (version == "HTTP/1.0") {
-            req.version(10);
+            req->version(10);
         }
-        req.target(url);
+        req->target(url);
         OATPP_LOGi(__func__, "line {}", __LINE__)
     
         for (auto const &[header, value]: headers) {
@@ -122,24 +122,24 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
                 OATPP_LOGe(__func__, "Invalid header: {}: {}", header, value);
                 continue; // Or sanitize/remove
             }
-            req.set(header, value);
+            req->set(header, value);
         }
     
         OATPP_LOGi(__func__, "line {}", __LINE__)
         //time of arrival from WS client in nanosecods
-        req.set("X-Arrived-time", t);
+        req->set("X-Arrived-time", t);
         OATPP_LOGi(__func__, "line {}", __LINE__)
-        req.set("X-Client-ID", clientID);
+        req->set("X-Client-ID", clientID);
         OATPP_LOGi(__func__, "line {}", __LINE__)
     
         if (!body.empty()) {
             OATPP_LOGi(__func__, "line {}", __LINE__)
-            req.body() = body;
+            req->body() = body;
             //auto content_length = req.find("Content-Length");
             OATPP_LOGi(__func__, "line {}", __LINE__)
-            req.prepare_payload();
+            req->prepare_payload();
         }
-        req.need_eof();
+        req->need_eof();
         OATPP_LOGi(__func__, "line {}", __LINE__)
         tcp::resolver resolver(co_await asio::this_coro::executor);
         beast::tcp_stream stream(co_await asio::this_coro::executor);
@@ -148,9 +148,9 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
         co_await stream.async_connect(results, asio::use_awaitable);
     
         //http::request<http::string_body> req{http::verb::post, target, 11};
-        req.set(http::field::host, host);
+        req->set(http::field::host, host);
     
-        co_await http::async_write(stream, req, asio::use_awaitable);
+        co_await http::async_write(stream, *req, asio::use_awaitable);
     
         beast::flat_buffer buffer;
         http::response<http::string_body> res;
