@@ -54,9 +54,12 @@ static std::string sendHttpReqSync(std::string const& msg, std::string const& ho
     
         boost::asio::io_context ioc;
         tcp::resolver resolver(ioc);
+    OATPP_LOGi(__func__, "line {}", __LINE__)
         boost::beast::tcp_stream stream(ioc);
-        
+    
+    OATPP_LOGi(__func__, "line {}", __LINE__)
         auto const results = resolver.resolve(host, port);
+    OATPP_LOGi(__func__, "line {}", __LINE__)
         stream.connect(results);
     OATPP_LOGi(__func__, "line {}", __LINE__)
         
