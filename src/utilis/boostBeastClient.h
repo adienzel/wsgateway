@@ -133,6 +133,8 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
         if (t.size() < 20) {
             OATPP_LOGi(__func__, "line {}", __LINE__)
             req->set("X-Arrived-time", t);
+        } else {
+            OATPP_LOGi(__func__, "line {} the time is  {} and length is {}", __LINE__, t, t.size())
         }
         //req->set("X-Arrived-time", t);
         OATPP_LOGi(__func__, "line {}", __LINE__)
