@@ -37,12 +37,12 @@ static std::string sendHttpReqSync(std::shared_ptr<std::string> msg, std::string
                 continue; // Or sanitize/remove
             }
     
-            req->set(header, value);
+            req.set(header, value);
         }
     
     OATPP_LOGi(__func__, "line {}", __LINE__)
         //time of arrival from WS client in nanosecods
-        req->set("X-Arrived-time", t);
+        req.set("X-Arrived-time", t);
     
         if (!body.empty()) {
             req.body() = body;
