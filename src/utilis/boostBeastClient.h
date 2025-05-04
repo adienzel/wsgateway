@@ -26,7 +26,7 @@ namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
 static std::string sendHttpReqSync(std::string const& msg, std::string const& host, std::string const& port,  std::string const& vin, const struct timespec* t) {
     OATPP_LOGi(__func__, "line {}", __LINE__)
     auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
-    OATPP_LOGi(__func__, "line {}", __LINE__)
+    OATPP_LOGi(__func__, "line {} method {} url {} version {} body {}", __LINE__, method, url, version, body)
     http::request<http::string_body> req;
     OATPP_LOGi(__func__, "line {}", __LINE__)
     req.method(boost::beast::http::string_to_verb(method));
