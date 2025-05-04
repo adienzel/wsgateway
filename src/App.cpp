@@ -65,7 +65,17 @@ void run(int argc, const char * argv[]) {
         //OATPP_LOGd(__func__, " {}", __LINE__)
         /* create servers */
         OATPP_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders);
+    
+        OATPP_COMPONENT(std::shared_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>, workGuard);
 
+        OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc);
+        std::thread ioThread([ioc]() {
+            std::cout << "[ioThread] Running io_context" << std::endl;
+            ioc->run();  // This will now keep running even with no work
+            std::cout << "[ioThread] io_context exited" << std::endl;
+        });
+    
+    
         std::list<std::thread> threads;
 
         for (auto& provider : *connectionProviders) {
@@ -87,14 +97,6 @@ void run(int argc, const char * argv[]) {
             }
         }
     
-        OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc);
-        std::thread ioThread([ioc]() {
-            std::cout << "[ioThread] Running io_context" << std::endl;
-            ioc->run();  // This will now keep running even with no work
-            std::cout << "[ioThread] io_context exited" << std::endl;
-        });
-    
-        OATPP_COMPONENT(std::shared_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>, workGuard);
         
         workGuard->reset();
         ioThread.join();
