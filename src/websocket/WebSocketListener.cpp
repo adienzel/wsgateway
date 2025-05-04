@@ -62,7 +62,9 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
     
         auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         auto t = std::to_string(ns);
-        auto wholeMessage = m_messageBuffer.toString();
+        auto wholeMessage = std::make_shared<std::string>();
+        *wholeMessage = m_messageBuffer.toStdString();
+//        auto wholeMessage = m_messageBuffer.toString();
         m_messageBuffer.reset();
       
         OATPP_LOGd(__func__, "line {} to client {} message={}", __LINE__, clientID, wholeMessage);

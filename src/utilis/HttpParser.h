@@ -49,9 +49,9 @@ static std::string buildResponseStringBuffer(const boost::beast::http::response<
  *      headers map of all headers in the request
  *      body string  
  */
-auto createRequestFromBuffer(const std::string& buffer) {
-    OATPP_LOGi(__func__, "line {} msg {} size = {}", __LINE__, buffer, buffer.size())
-    std::istringstream stream(buffer);
+static auto createRequestFromBuffer(std::shared_ptr<std::string> buffer) {
+    OATPP_LOGi(__func__, "line {} msg {} size = {}", __LINE__, *buffer, buffer->size())
+    std::istringstream stream(*buffer);
     std::string method;
     std::string url;
     std::string version;

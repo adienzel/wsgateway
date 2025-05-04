@@ -22,7 +22,7 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
 
 
-static std::string sendHttpReqSync(std::string const& msg, std::string const& host, std::string const& port,  std::string const& vin, std::string const& t) {
+static std::string sendHttpReqSync(std::shared_ptr<std::string> msg, std::string const& host, std::string const& port,  std::string const& vin, std::string const& t) {
     OATPP_LOGi(__func__, "line {}", __LINE__)
     auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
     http::request<http::string_body> req;
@@ -92,7 +92,7 @@ static std::string sendHttpReqSync(std::string const& msg, std::string const& ho
 //    OATPP_LOGi(__func__, "line {}", __LINE__)
 }
 
-static boost::asio::awaitable<std::string> asyncHttpClient(std::string const& msg, 
+static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::string> msg, 
                                                     std::string& host,
                                                     std::string& port,
                                                     std::string& clientID,
