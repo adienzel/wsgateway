@@ -75,6 +75,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         //this is echo direct from websocket
         //return socket->sendOneFrameTextAsync("Hello from oatpp!: " + wholeMessage);
     } else if (size > 0) { // message frame received
+        OATPP_LOGd(__func__, " Data = {}, size = {}", data, size);
         m_messageBuffer.writeSimple(data, size);
     }
     
