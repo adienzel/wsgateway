@@ -55,7 +55,7 @@ auto createRequestFromBuffer(const std::string& buffer) {
     std::unordered_map<std::string, std::string> headers;
     std::string headerLine;
     OATPP_LOGi(__func__, "line {}", __LINE__)
-    while (std::getline(stream, headerLine) && !headerLine.empty()) {
+    while (std::getline(stream, headerLine) && headerLine.size() > 2) {
         auto delimiterPos = headerLine.find(": ");
         auto headerName = headerLine.substr(0, delimiterPos);
         auto headerValue = headerLine.substr(delimiterPos + 2);
