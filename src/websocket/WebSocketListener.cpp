@@ -75,6 +75,16 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                 *ioc_,
                 asyncHttpClient(wholeMessage, http_server_address_, http_server_port_, clientID, t),
                 [socket](std::exception_ptr eptr, std::string result) {
+                    std::cout << "[co_spawn handler] result = " << result << std::endl;
+                    if (eptr) {
+                        try { 
+                            std::rethrow_exception(eptr); 
+                        } catch (const std::exception& e) {
+                            std::cerr << "co_spawn error: " << e.what() << std::endl;
+                        }
+                        return;
+                    }
+    
                     if (!result.empty()) {
                         socket->sendOneFrameTextAsync(result);
                     }

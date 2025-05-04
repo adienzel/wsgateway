@@ -27,46 +27,6 @@ void run(int argc, const char * argv[]) {
         AppComponent components;
         OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
     
-//        SSL_CTX* ctx;
-//        
-//        if (m_cmdArgs->use_mtls) {
-//            SSL_library_init();
-//            SSL_load_error_strings();
-//            OpenSSL_add_all_algorithms();
-//    
-//            const SSL_METHOD *method = TLS_server_method();
-//            ctx = SSL_CTX_new(method);
-//    
-//    
-//            if (!ctx) {
-//                ERR_print_errors_fp(stderr);
-//                exit(EXIT_FAILURE);
-//            }
-//    
-//            // Set the minimum and maximum protocol versions to TLS 1.3
-//            SSL_CTX_set_min_proto_version(ctx, TLS1_3_VERSION);
-//            SSL_CTX_set_max_proto_version(ctx, TLS1_3_VERSION);
-//    
-//            if (SSL_CTX_use_certificate_file(ctx, m_cmdArgs->server_cert_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
-//                ERR_print_errors_fp(stderr);
-//                OATPP_LOGe(__func__, "Error in SSL_CTX_use_certificate_file {}", m_cmdArgs->server_cert_filename)
-//                exit(EXIT_FAILURE);
-//            }
-//            if (SSL_CTX_use_PrivateKey_file(ctx, m_cmdArgs->private_key_filename.c_str(), SSL_FILETYPE_PEM) <= 0) {
-//                ERR_print_errors_fp(stderr);
-//                OATPP_LOGe(__func__, "Error in SSL_CTX_use_PrivateKey_file {}", m_cmdArgs->private_key_filename)
-//                exit(EXIT_FAILURE);
-//            }
-//            if (SSL_CTX_load_verify_locations(ctx, m_cmdArgs->ca_key_file_name.c_str(), nullptr) <= 0) {
-//                ERR_print_errors_fp(stderr);
-//                OATPP_LOGe(__func__, "Error in SSL_CTX_load_verify_locations {}", m_cmdArgs->ca_key_file_name)
-//                exit(EXIT_FAILURE);
-//            }
-//    
-//            SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
-//    
-//        }
-        //OATPP_LOGd(__func__, " {}", __LINE__)
         OATPP_COMPONENT(std::shared_ptr<ScyllaDBManager>, dbManager, "scyllaDBManager");
         //OATPP_LOGd(__func__, " {}", __LINE__)
         if (!dbManager->connect(m_cmdArgs->scylladb_address)) {
@@ -129,7 +89,9 @@ void run(int argc, const char * argv[]) {
     
         OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc);
         std::thread ioThread([ioc]() {
+            std::cout << "[ioThread] Running io_context" << std::endl;
             ioc->run();  // This will now keep running even with no work
+            std::cout << "[ioThread] io_context exited" << std::endl;
         });
     
         OATPP_COMPONENT(std::shared_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>, workGuard);
@@ -140,6 +102,8 @@ void run(int argc, const char * argv[]) {
         for (auto& thread : threads) {
             thread.join();
         }
+    
+        oatpp::Environment::destroy();
             
     } catch (const std::exception& e) {
             OATPP_LOGe(__func__, "thread fail {}", e.what())
