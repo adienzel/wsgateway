@@ -42,7 +42,10 @@ static std::string sendHttpReqSync(std::shared_ptr<std::string> msg, std::string
     
     OATPP_LOGi(__func__, "line {}", __LINE__)
         //time of arrival from WS client in nanosecods
-        req.set("X-Arrived-time", t);
+        if (t.size() < 20) {
+            OATPP_LOGi(__func__, "line {}", __LINE__)
+            req.set("X-Arrived-time", t);
+        }
     
         if (!body.empty()) {
             req.body() = body;
