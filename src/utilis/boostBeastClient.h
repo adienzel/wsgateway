@@ -122,23 +122,25 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
                 OATPP_LOGe(__func__, "Invalid header: {}: {}", header, value);
                 continue; // Or sanitize/remove
             }
-        
             req.set(header, value);
         }
     
         OATPP_LOGi(__func__, "line {}", __LINE__)
         //time of arrival from WS client in nanosecods
         req.set("X-Arrived-time", t);
+        OATPP_LOGi(__func__, "line {}", __LINE__)
         req.set("X-Client-ID", clientID);
+        OATPP_LOGi(__func__, "line {}", __LINE__)
     
         if (!body.empty()) {
+            OATPP_LOGi(__func__, "line {}", __LINE__)
             req.body() = body;
             //auto content_length = req.find("Content-Length");
+            OATPP_LOGi(__func__, "line {}", __LINE__)
             req.prepare_payload();
         }
         req.need_eof();
         OATPP_LOGi(__func__, "line {}", __LINE__)
-        std::cout.flush();
         tcp::resolver resolver(co_await asio::this_coro::executor);
         beast::tcp_stream stream(co_await asio::this_coro::executor);
     
