@@ -55,7 +55,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
             OATPP_LOGd(__func__, "got binary of size {}", m_messageBuffer.getCapacity());
         }
     
-        auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+        auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         auto t = std::to_string(ns);
         auto wholeMessage = m_messageBuffer.toString();
         m_messageBuffer.reset();
