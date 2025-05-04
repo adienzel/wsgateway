@@ -126,7 +126,17 @@ void run(int argc, const char * argv[]) {
                 OATPP_LOGe(__func__, "thread fail {}", e.what())
             }
         }
-
+    
+        OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc);
+        std::thread ioThread([ioc]() {
+            ioc->run();  // This will now keep running even with no work
+        });
+    
+        OATPP_COMPONENT(std::shared_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>, workGuard);
+        
+        workGuard->reset();
+        ioThread.join();
+    
         for (auto& thread : threads) {
             thread.join();
         }

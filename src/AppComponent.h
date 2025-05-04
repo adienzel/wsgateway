@@ -71,48 +71,63 @@ public:
    */
   
   
-  OATPP_CREATE_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders) ([this] {
-    auto providers = std::make_shared<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>();
-    OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
-    auto port = m_cmdArgs->base_port;
-    SSL_CTX *ctx;
-    if (m_cmdArgs->use_mtls) {
-        port = m_cmdArgs->mtls_base_port;
-        ctx = getSSLContext(m_cmdArgs);
-    }
-    
-    for (v_uint8 i = 0; i < m_cmdArgs->number_of_ports; i++) {
-        try {
-            OATPP_LOGd("AppComponent", "Connection Provider for address: {}:{}", m_cmdArgs->server_address, port + i)
-            
-            if (m_cmdArgs->use_mtls) {
-                auto config = oatpp::openssl::Config::createShared();
-                config->configureContext(ctx);
-                providers->push_back(oatpp::openssl::server::ConnectionProvider::createShared(config,
-                                          oatpp::network::Address(m_cmdArgs->server_address, port + i)));
-            } else {
-                providers->push_back(oatpp::network::tcp::server::ConnectionProvider::createShared(
-                               oatpp::network::Address(m_cmdArgs->server_address, port + i)));
-            }
-            
-        } catch (const std::exception& e) {
-            OATPP_LOGe(__func__, "thread fail while trying to set connection, error :", e.what());
-            exit(-1);
+    OATPP_CREATE_COMPONENT(std::shared_ptr<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>, connectionProviders) ([this] {
+        auto providers = std::make_shared<std::list<std::shared_ptr<oatpp::network::ServerConnectionProvider>>>();
+        OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
+        auto port = m_cmdArgs->base_port;
+        SSL_CTX *ctx;
+        if (m_cmdArgs->use_mtls) {
+            port = m_cmdArgs->mtls_base_port;
+            ctx = getSSLContext(m_cmdArgs);
         }
-    }
-    return providers;
-  }());
+    
+        for (v_uint8 i = 0; i < m_cmdArgs->number_of_ports; i++) {
+            try {
+                OATPP_LOGd("AppComponent", "Connection Provider for address: {}:{}", m_cmdArgs->server_address,
+                           port + i)
+            
+                if (m_cmdArgs->use_mtls) {
+                    auto config = oatpp::openssl::Config::createShared();
+                    config->configureContext(ctx);
+                    providers->push_back(oatpp::openssl::server::ConnectionProvider::createShared(config,
+                                                                                                  oatpp::network::Address(
+                                                                                                          m_cmdArgs->server_address,
+                                                                                                          port + i)));
+                } else {
+                    providers->push_back(oatpp::network::tcp::server::ConnectionProvider::createShared(
+                            oatpp::network::Address(m_cmdArgs->server_address, port + i)));
+                }
+            
+            } catch (const std::exception &e) {
+                OATPP_LOGe(__func__, "thread fail while trying to set connection, error :", e.what());
+                exit(-1);
+            }
+        }
+        return providers;
+    }());
   
-
     
     /**
      *  Create Router component
      */
+
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, httpRouter)([] {
         //OATPP_LOGd(__func__, " {}", __LINE__)
         return oatpp::web::server::HttpRouter::createShared();
     }());
     
+    OATPP_CREATE_COMPONENT(std::shared_ptr<boost::asio::io_context>, io_context) ([] {
+        auto ioc =  std::make_shared<boost::asio::io_context>();
+        return ioc;
+    }());
+    
+    OATPP_CREATE_COMPONENT(std::shared_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>, workGuard) ([] {
+        OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc);
+        auto workGuard = std::make_shared<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>(
+                boost::asio::make_work_guard(*ioc));
+        return workGuard;
+    }());
+
     /**
      *  Create ConnectionHandler component which uses Router component to route requests
      */

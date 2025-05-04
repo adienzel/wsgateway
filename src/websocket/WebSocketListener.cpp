@@ -65,7 +65,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         auto wholeMessage = m_messageBuffer.toString();
         m_messageBuffer.reset();
       
-        OATPP_LOGd(TAG, "readMessage to client {} message={}", clientID, wholeMessage);
+        OATPP_LOGd(__func__, "line {} to client {} message={}", __LINE__, clientID, wholeMessage);
     
         //dispatch messages to apps
         
@@ -206,7 +206,8 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
     webSocketComponent->addClient(clientId, socket);
     OATPP_LOGi(__func__, "line {}", __LINE__)
     //allocate listener per connection
-    auto ioc = std::make_shared<boost::asio::io_context>();
+    OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc)
+    //auto ioc = std::make_shared<boost::asio::io_context>();
     OATPP_LOGi(__func__, "line {}", __LINE__)
     //use the vin from ssl
     //socket->setListener(std::make_shared<WebSocketListener>(common_name, ioc, m_cmdArgs->http_request_address, m_cmdArgs->http_request_port));
