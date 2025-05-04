@@ -102,12 +102,13 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::string const& ms
     namespace asio = boost::asio;
     using tcp = asio::ip::tcp;
     try {
-        std::cout << "[asyncHttpClient] Entered coroutine" << std::endl;
-    
         OATPP_LOGi(__func__, "line {}", __LINE__)
         auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
+        OATPP_LOGi(__func__, "line {}", __LINE__)
         http::request<http::string_body> req;
+        OATPP_LOGi(__func__, "line {}", __LINE__)
         req.method(boost::beast::http::string_to_verb(method));
+        OATPP_LOGi(__func__, "line {}", __LINE__)
         if (version == "HTTP/1.1") {
             req.version(11);
         } else if (version == "HTTP/1.0") {
