@@ -42,16 +42,19 @@ static std::string buildResponseStringBuffer(const boost::beast::http::response<
  *      body string  
  */
 auto createRequestFromBuffer(const std::string& buffer) {
+    OATPP_LOGi(__func__, "line {}", __LINE__)
     std::istringstream stream(buffer);
     std::string method;
     std::string url;
     std::string version;
     std::string body;
     
+    OATPP_LOGi(__func__, "line {}", __LINE__)
     stream >> method >> url >> version;
         
     std::unordered_map<std::string, std::string> headers;
     std::string headerLine;
+    OATPP_LOGi(__func__, "line {}", __LINE__)
     while (std::getline(stream, headerLine) && !headerLine.empty()) {
         auto delimiterPos = headerLine.find(": ");
         auto headerName = headerLine.substr(0, delimiterPos);
@@ -61,6 +64,7 @@ auto createRequestFromBuffer(const std::string& buffer) {
             OATPP_LOGe(__func__, "error insert header {} aleady added one", headerName) 
         }
     }
+    OATPP_LOGi(__func__, "line {}", __LINE__)
     
     //oatpp::web::protocol::http::
     std::streamsize contentLength = 0;
@@ -69,7 +73,8 @@ auto createRequestFromBuffer(const std::string& buffer) {
         body.insert(0, contentLength, '0');
         stream.read(&body[0], contentLength);
     }
-    
+    OATPP_LOGi(__func__, "line {}", __LINE__)
+   
     return std::make_tuple(method, url, version, headers, body);
 }
 
