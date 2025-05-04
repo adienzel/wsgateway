@@ -130,7 +130,11 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
     
         OATPP_LOGi(__func__, "line {}", __LINE__)
         //time of arrival from WS client in nanosecods
-        req->set("X-Arrived-time", t);
+        if (t.size() < 20) {
+            OATPP_LOGi(__func__, "line {}", __LINE__)
+            req->set("X-Arrived-time", t);
+        }
+        //req->set("X-Arrived-time", t);
         OATPP_LOGi(__func__, "line {}", __LINE__)
         req->set("X-Client-ID", clientID);
         OATPP_LOGi(__func__, "line {}", __LINE__)
