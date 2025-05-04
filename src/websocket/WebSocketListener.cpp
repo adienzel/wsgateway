@@ -68,7 +68,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         auto response =  sendHttpReqSync(wholeMessage, http_server_address_, http_server_port_, clientID, t);
         OATPP_LOGi(__func__, "line {}", __LINE__)
         if (!response.empty()) {
-            OATPP_LOGi(__func__, "line {}", __LINE__)
+            OATPP_LOGi(__func__, "line {}, response = {}", __LINE__, response)
             socket->sendOneFrameTextAsync(response);
         }
         OATPP_LOGi(__func__, "line {}", __LINE__)
