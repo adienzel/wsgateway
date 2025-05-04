@@ -13,6 +13,11 @@
 #include "utilis/boostBeastClient.h"
 #include "utilis/messageDTO.h"
 #include "config.h" 
+#include <boost/asio/awaitable.hpp>
+#include <boost/asio/co_spawn.hpp>
+#include <boost/asio/use_awaitable.hpp>
+#include <boost/asio/detached.hpp> // If you use `detached` as the completion token
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WSListener
@@ -65,22 +70,33 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         //dispatch messages to apps
         
         //std::make_shared<session>(*ioc_)->run(http_server_address_.c_str(), http_server_port_.c_str(), wholeMessage, clientID, &t);
-        auto response =  sendHttpReqSync(wholeMessage, http_server_address_, http_server_port_, clientID, t);
-        OATPP_LOGi(__func__, "line {}", __LINE__)
-        if (!response.empty()) {
-            OATPP_LOGi(__func__, "line {}, response = {}", __LINE__, response)
-            socket->sendOneFrameTextAsync(response);
-        }
+    
+        boost::asio::co_spawn(
+                *ioc_,
+                asyncHttpClient(wholeMessage, http_server_address_, http_server_port_, clientID, t),
+                [socket](std::exception_ptr eptr, std::string result) {
+                    if (!result.empty()) {
+                        socket->sendOneFrameTextAsync(result);
+                    }
+                }
+        );
+        
+//        auto response =  sendHttpReqSync(wholeMessage, http_server_address_, http_server_port_, clientID, t);
+//        OATPP_LOGi(__func__, "line {}", __LINE__)
+//        if (!response.empty()) {
+//            OATPP_LOGi(__func__, "line {}, response = {}", __LINE__, response)
+//            socket->sendOneFrameTextAsync(response);
+//        }
         OATPP_LOGi(__func__, "line {}", __LINE__)
         //return nullptr;
         //this is echo direct from websocket
         //return socket->sendOneFrameTextAsync("Hello from oatpp!: " + wholeMessage);
     } else if (size > 0) { // message frame received
-        std::string str = {};
-        for (auto i = 0; i < size; i++) {
-            str += data[i];
-        } 
-        OATPP_LOGd(__func__, " Data = {}, size = {}", str, size);
+//        std::string str = {};
+//        for (auto i = 0; i < size; i++) {
+//            str += data[i];
+//        } 
+//        OATPP_LOGd(__func__, " Data = {}, size = {}", str, size);
         m_messageBuffer.writeSimple(data, size);
     }
     

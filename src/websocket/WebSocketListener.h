@@ -58,6 +58,7 @@ private:
     
     void sendToRestServer(const oatpp::String& version, const oatpp::String& vin);
     
+    
 };
 
 /**

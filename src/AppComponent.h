@@ -88,22 +88,6 @@ public:
             if (m_cmdArgs->use_mtls) {
                 auto config = oatpp::openssl::Config::createShared();
                 config->configureContext(ctx);
-/*
-                //OATPP_LOGd(__func__, "certificate file name = {}", m_cmdArgs->server_cert_filename);
-                config->addContextConfigurer(
-                        std::make_shared<oatpp::openssl::configurer::CertificateChainFile>(m_cmdArgs->server_cert_filename));
-                //OATPP_LOGd(__func__, "private key  file name = {}", m_cmdArgs->private_key_filename);
-                config->addContextConfigurer(
-                        std::make_shared<oatpp::openssl::configurer::PrivateKeyFile>(m_cmdArgs->private_key_filename));
-                //OATPP_LOGd(__func__, "ca file name = {} ", m_cmdArgs->ca_key_file_name);
-                config->addContextConfigurer(
-                        // need to add the directory later
-                        std::make_shared<oatpp::openssl::configurer::TrustStore>(m_cmdArgs->ca_key_file_name, nullptr));
-                // strong require client certificate and week will validate only if exists (can use only TLS)
-                config->addContextConfigurer(
-                        std::make_shared<oatpp::openssl::configurer::PeerCertificateVerification>(
-                                oatpp::openssl::configurer::CertificateVerificationMode::EnabledStrong));
-*/
                 providers->push_back(oatpp::openssl::server::ConnectionProvider::createShared(config,
                                           oatpp::network::Address(m_cmdArgs->server_address, port + i)));
             } else {
@@ -120,35 +104,6 @@ public:
   }());
   
 
-    /**
-     *  Create server ConnectionProvider component which listens on the port for 
-     */
-    // OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([this] {
-    //     OATPP_COMPONENT(std::shared_ptr<oatpp::base::CommandLineArguments>, m_cmdArgs);
-    //     //OATPP_LOGd(__func__, " {}", __LINE__)
-    //     auto port = (v_int16) oatpp::utils::Conversion::strToInt32(
-    //             m_cmdArgs->getNamedArgumentValue("--port", "8020" /* default value */));
-    //     auto network_type = oatpp::utils::Conversion::strToInt32(m_cmdArgs->getNamedArgumentValue("--ntype", "4"));
-    //     auto network_family_type = oatpp::network::Address::Family::IP_4;
-    //     if (network_type == 6) {
-    //         network_family_type = oatpp::network::Address::Family::IP_6;
-    //     }
-    //     auto address = m_cmdArgs->getNamedArgumentValue("--addr", "0.0.0.0");
-    //     if (network_family_type == oatpp::network::Address::Family::IP_6 && !is_valid_ipv6(address)) {
-    //         // cppcheck-suppress unknownMacro
-    //         OATPP_LOGe(TAG, "IP address is not IPv6 {} address", address)
-    //         exit(-1);
-    //     } else if (network_family_type == oatpp::network::Address::Family::IP_4 && !isValidIPv4(address)) {
-    //         OATPP_LOGe(TAG, "IP address is not IPv4 {} address", address)
-    //         exit(-1);
-    //     }
-        
-    //     auto addr = oatpp::network::Address(address, port, network_family_type);
-        
-    //     return oatpp::network::tcp::server::ConnectionProvider::createShared(
-    //             oatpp::network::Address(address, port, network_family_type));
-        
-    // }());
     
     /**
      *  Create Router component
