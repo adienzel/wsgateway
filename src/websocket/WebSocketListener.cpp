@@ -57,7 +57,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         struct timespec t {0,0};
         clock_gettime(CLOCK_MONOTONIC, &t);
         //auto wholeMessage = m_messageBuffer.toString();
-        m_messageBuffer.setCurrentPosition(0);
+        //m_messageBuffer.setCurrentPosition(0);
         auto wholeMessage = m_messageBuffer.toString();
         //auto wholeMessage = (std::string*)m_messageBuffer.getData();
     
