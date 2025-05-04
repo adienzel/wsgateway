@@ -65,7 +65,7 @@ auto createRequestFromBuffer(const std::string& buffer) {
             break;
         }
         auto headerName = headerLine.substr(0, delimiterPos);
-        auto headerValue = headerLine.substr(delimiterPos + 2, headerLine.size()) + "\r\n";
+        auto headerValue = headerLine.substr(delimiterPos + 2, headerLine.size() - (delimiterPos + 2)- 2);
         OATPP_LOGi(__func__, "line {} header {}, value {}", __LINE__, headerName, headerValue)
         auto [first, second] = headers.try_emplace(headerName, headerValue);
         if (!second) {
