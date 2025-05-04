@@ -61,7 +61,8 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         }
     
         auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        auto t = std::to_string(ns);
+        auto t = std::make_shared<std::string>();
+        *t = std::to_string(ns);
         auto wholeMessage = std::make_shared<std::string>();
         *wholeMessage = m_messageBuffer.toStdString();
 //        auto wholeMessage = m_messageBuffer.toString();
@@ -88,18 +89,12 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                     }
     
                     if (!result.empty()) {
-                        OATPP_LOGd(__func__, "line {} result = {}", __LINE__, result);
+                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
                         socket->sendOneFrameTextAsync(result);
                     }
                 }
         );
         
-//        auto response =  sendHttpReqSync(wholeMessage, http_server_address_, http_server_port_, clientID, t);
-//        OATPP_LOGi(__func__, "line {}", __LINE__)
-//        if (!response.empty()) {
-//            OATPP_LOGi(__func__, "line {}, response = {}", __LINE__, response)
-//            socket->sendOneFrameTextAsync(response);
-//        }
         OATPP_LOGi(__func__, "line {}", __LINE__)
         //return nullptr;
         //this is echo direct from websocket
