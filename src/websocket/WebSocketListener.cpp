@@ -206,7 +206,7 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
     webSocketComponent->addClient(clientId, socket);
     OATPP_LOGi(__func__, "line {}", __LINE__)
     //allocate listener per connection
-    OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc)
+    OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc);
     //auto ioc = std::make_shared<boost::asio::io_context>();
     OATPP_LOGi(__func__, "line {}", __LINE__)
     //use the vin from ssl
