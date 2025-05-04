@@ -103,7 +103,15 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::string const& ms
     using tcp = asio::ip::tcp;
     try {
         OATPP_LOGi(__func__, "line {}", __LINE__)
-        auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
+        std::string method;
+        std::string url;
+        std::string version;
+        std::string body;
+        std::unordered_map<std::string, std::string> headers;
+        
+        std::tie(method, url, version, headers, body) = createRequestFromBuffer(msg);
+        
+        //[method, url, version, headers, body] = createRequestFromBuffer(msg);
         OATPP_LOGi(__func__, "line {}", __LINE__)
         http::request<http::string_body> req;
         OATPP_LOGi(__func__, "line {}", __LINE__)
