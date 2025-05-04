@@ -54,12 +54,10 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         } else if (opcode == oatpp::websocket::Frame::OPCODE_BINARY) {
             OATPP_LOGd(__func__, "got binary of size {}", m_messageBuffer.getCapacity());
         }
-        struct timespec t {0,0};
-        clock_gettime(CLOCK_MONOTONIC, &t);
-        //auto wholeMessage = m_messageBuffer.toString();
-        //m_messageBuffer.setCurrentPosition(0);
+    
+        auto ns = duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+        auto t = std::to_string(ns);
         auto wholeMessage = m_messageBuffer.toString();
-        //auto wholeMessage = (std::string*)m_messageBuffer.getData();
         m_messageBuffer.reset();
       
         OATPP_LOGd(TAG, "readMessage to client {} message={}", clientID, wholeMessage);
@@ -67,7 +65,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         //dispatch messages to apps
         
         //std::make_shared<session>(*ioc_)->run(http_server_address_.c_str(), http_server_port_.c_str(), wholeMessage, clientID, &t);
-        auto response =  sendHttpReqSync(wholeMessage, http_server_address_, http_server_port_, clientID, &t);
+        auto response =  sendHttpReqSync(wholeMessage, http_server_address_, http_server_port_, clientID, t);
         if (!response.empty()) {
             socket->sendOneFrameTextAsync(response);
         }

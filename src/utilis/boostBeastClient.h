@@ -23,7 +23,7 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
 
 
-static std::string sendHttpReqSync(std::string const& msg, std::string const& host, std::string const& port,  std::string const& vin, const struct timespec* t) {
+static std::string sendHttpReqSync(std::string const& msg, std::string const& host, std::string const& port,  std::string const& vin, std::string const& t) {
     OATPP_LOGi(__func__, "line {}", __LINE__)
     auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
     OATPP_LOGi(__func__, "line {} method {} url {} version {} body {}", __LINE__, method, url, version, body)
@@ -47,7 +47,7 @@ static std::string sendHttpReqSync(std::string const& msg, std::string const& ho
     
     OATPP_LOGi(__func__, "line {}", __LINE__)
         //time of arrival from WS client in nanosecods
-        req.set("X-Arrived-Client-time", std::to_string(t->tv_sec * 1000000000 + t->tv_nsec));
+        req.set("X-Arrived-Client-time", t);
     
         if (!body.empty()) {
             req.body() = body;
