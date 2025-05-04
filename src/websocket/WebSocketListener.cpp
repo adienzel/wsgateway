@@ -77,7 +77,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                 *ioc_,
                 asyncHttpClient(wholeMessage, http_server_address_, http_server_port_, clientID, t),
                 [socket](std::exception_ptr eptr, std::string result) {
-                    std::cout << "[co_spawn handler] result = " << result << std::endl;
+                    //std::cout << "[co_spawn handler] result = " << result << std::endl;
                     if (eptr) {
                         try { 
                             std::rethrow_exception(eptr); 
@@ -88,6 +88,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                     }
     
                     if (!result.empty()) {
+                        OATPP_LOGd(__func__, "line {} result = {}", __LINE__, result);
                         socket->sendOneFrameTextAsync(result);
                     }
                 }

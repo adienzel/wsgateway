@@ -161,14 +161,16 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
     
         beast::flat_buffer buffer;
         http::response<http::string_body> res;
-    
         co_await http::async_read(stream, buffer, res, asio::use_awaitable);
     
-        std::string result = res.body();
+        OATPP_LOGi(__func__, "line {}", __LINE__)
+        auto result = buildResponseStringBuffer(res);
+        //std::string result = res.body();
     
         beast::error_code ec;
         stream.socket().shutdown(tcp::socket::shutdown_both, ec);
     
+        OATPP_LOGi(__func__, "line {}", __LINE__)
         co_return result;
     } catch (const std::exception& e) {
         std::cerr << __func__ << " exception: " << e.what() << std::endl;
