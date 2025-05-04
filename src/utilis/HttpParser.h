@@ -55,10 +55,12 @@ auto createRequestFromBuffer(const std::string& buffer) {
     std::unordered_map<std::string, std::string> headers;
     std::string headerLine;
     OATPP_LOGi(__func__, "line {}", __LINE__)
+    auto mycount = 0;
     while (std::getline(stream, headerLine) && !headerLine.empty()) {
+        mycount++;
         OATPP_LOGi(__func__, "line {} headerline {} aa", __LINE__, headerLine)
         auto delimiterPos = headerLine.find(": ");
-        if (delimiterPos == std::string::npos) {
+        if (delimiterPos == std::string::npos && mycount > 1) {
             OATPP_LOGi(__func__, "line {} headerline {} at deimiter {}", __LINE__, headerLine, delimiterPos)
             break;
         }
