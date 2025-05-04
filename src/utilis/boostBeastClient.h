@@ -27,13 +27,9 @@ namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
 static std::string sendHttpReqSync(std::string const& msg, std::string const& host, std::string const& port,  std::string const& vin, std::string const& t) {
     OATPP_LOGi(__func__, "line {}", __LINE__)
     auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
-    OATPP_LOGi(__func__, "line {} method {} url {} version {} body {}", __LINE__, method, url, version, body)
     http::request<http::string_body> req;
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     req.method(boost::beast::http::string_to_verb(method));
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     req.version(version == "HTTP/1.1" ? 11 : 0);
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     req.target(url);
     OATPP_LOGi(__func__, "line {}", __LINE__)
     
@@ -48,7 +44,7 @@ static std::string sendHttpReqSync(std::string const& msg, std::string const& ho
     
     OATPP_LOGi(__func__, "line {}", __LINE__)
         //time of arrival from WS client in nanosecods
-        req.set("X-Arrived-Client-time", t);
+        req.set("X-Arrived-time", t);
     
         if (!body.empty()) {
             req.body() = body;
@@ -79,10 +75,9 @@ static std::string sendHttpReqSync(std::string const& msg, std::string const& ho
         http::read(stream, buffer, res);
     OATPP_LOGi(__func__, "line {}", __LINE__)
         
-        struct timespec tr {0, 0};
-        clock_gettime(CLOCK_MONOTONIC, &tr);
+        auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     
-        res.set("X-Return-time", std::to_string(tr.tv_sec * 1000000000 + tr.tv_nsec));
+        res.set("X-Return-time", std::to_string(ns));
     OATPP_LOGi(__func__, "line {}", __LINE__)
         
         boost::beast::error_code ec;

@@ -33,6 +33,7 @@ static std::string buildResponseStringBuffer(const boost::beast::http::response<
     for (const auto& field : res) {
         oss << field.name_string() << ": " << field.value() << "\r\n";
     }
+    
     oss << "\r\n";
     oss << res.body();
     return oss.str();
