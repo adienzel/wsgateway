@@ -79,8 +79,10 @@ auto createRequestFromBuffer(const std::string& buffer) {
     if (headers.find("Content-Length") != headers.end()) {
         OATPP_LOGi(__func__, "line {}", __LINE__)
         contentLength = std::stoi(headers["Content-Length"]);
-        //body.insert(0, contentLength, '0');
+        body.insert(0, contentLength, '0');
         stream.read(&body[0], contentLength);
+        OATPP_LOGi(__func__, "line {}, body {}", __LINE__, body)
+        
     }
     OATPP_LOGi(__func__, "line {}", __LINE__)
    
