@@ -56,6 +56,7 @@ auto createRequestFromBuffer(const std::string& buffer) {
     std::string headerLine;
     OATPP_LOGi(__func__, "line {}", __LINE__)
     auto mycount = 0;
+    std::getline(stream, headerLine);
     while (std::getline(stream, headerLine) && !headerLine.empty()) {
         mycount++;
         OATPP_LOGi(__func__, "line {} headerline {} aa", __LINE__, headerLine)
@@ -65,7 +66,7 @@ auto createRequestFromBuffer(const std::string& buffer) {
             break;
         }
         auto headerName = headerLine.substr(0, delimiterPos);
-        auto headerValue = headerLine.substr(delimiterPos + 2, headerLine.size() - (delimiterPos + 2)- 2);
+        auto headerValue = headerLine.substr(delimiterPos + 2, headerLine.size() - (delimiterPos + 2) - 1);
         OATPP_LOGi(__func__, "line {} header {}, value {}", __LINE__, headerName, headerValue)
         auto [first, second] = headers.try_emplace(headerName, headerValue);
         if (!second) {
