@@ -123,13 +123,13 @@ void run(int argc, const char * argv[]) {
         }
     
         
-        workGuard->reset();
-        ioThread.join();
     
         for (auto& thread : threads) {
             thread.join();
         }
     
+        workGuard->reset();
+        ioThread.join();
         oatpp::Environment::destroy();
             
     } catch (const std::exception& e) {
