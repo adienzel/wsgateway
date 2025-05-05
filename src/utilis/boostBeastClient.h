@@ -80,7 +80,7 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
     
         co_return result;
     } catch (const std::exception& e) {
-        OATPP_LOGe(__func__ , " Line %d Exception: {}", __LINE__, e.what());
+        OATPP_LOGe(__func__ , " Line {} Exception: {} \n on message {}", __LINE__, e.what(), *msg);
         co_return "error";
     
     }
