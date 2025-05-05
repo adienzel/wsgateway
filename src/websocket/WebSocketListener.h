@@ -56,8 +56,7 @@ private:
     
     WebSocketComponent* webSocketComponent = nullptr;
     
-    void sendToRestServer(const oatpp::String& version, const oatpp::String& vin);
-    
+   
     
 };
 

@@ -68,33 +68,6 @@ public:
         
     };
     
-    
-//    ENDPOINT_INFO(SendTextMessage) {
-//        info->summary = "Send Text RPC";
-//        info->addResponse<String>(Status::CODE_200, "text/plain");
-//        info->pathParams.add<String>("clienId").description = "VIN"; // add param1 info
-//        
-//    }
-//    ENDPOINT_ASYNC("POST", "/send/text/{clienId}", SendTextMessage) {
-//    
-//    ENDPOINT_ASYNC_INIT(SendTextMessage)
-//        
-//        Action act() override {
-//            auto clientId = request->getPathVariable("clienId");
-//            OATPP_ASSERT_HTTP(clientId, Status::CODE_400, "clientId should not be null")
-//            char* end;
-//            auto id = strtoll(clientId->c_str(), &end, 10);
-//            if (clientId->c_str() == end) {
-//                throw oatpp::web::protocol::http::HttpError(Status::CODE_400, "client id is not numeric", {});
-//            }
-//            auto body = request->readBodyToString();
-//    
-//            WebSocketComponent::getInstance().sendTextMessageToClient(clientId, body);
-//            return _return(controller->createResponse(Status::CODE_200, "clientId = '" + clientId + "'"));
-//        }
-//        
-//    };
-    
     ENDPOINT_ASYNC("GET", "ws", WS1) {
     
     ENDPOINT_ASYNC_INIT(WS1)

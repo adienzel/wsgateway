@@ -8,10 +8,8 @@
 #include <openssl/x509.h>
 #include <utility>
 #include <future>
-#include "../client/RestClient.h"
 //#include "utilis/boostBeastAsyncClient.h"
 #include "utilis/boostBeastClient.h"
-#include "utilis/messageDTO.h"
 #include "config.h" 
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
@@ -24,20 +22,20 @@
 
 oatpp::async::CoroutineStarter WebSocketListener::onPing(const std::shared_ptr<AsyncWebSocket>& socket,
                                                          const oatpp::String& message) {
-    OATPP_LOGd(TAG, "onPing")
+//    OATPP_LOGd(TAG, "onPing")
     return socket->sendPongAsync(message);
 }
 
 oatpp::async::CoroutineStarter WebSocketListener::onPong(const std::shared_ptr<AsyncWebSocket>& socket,
                                                          const oatpp::String& message) {
-    OATPP_LOGd(TAG, "onPong");
+//    OATPP_LOGd(TAG, "onPong");
     return nullptr; // do nothing
 }
 
 oatpp::async::CoroutineStarter WebSocketListener::onClose(const std::shared_ptr<AsyncWebSocket>& socket,
                                                           v_uint16 code, 
                                                           const oatpp::String& message) {
-    OATPP_LOGd(TAG, "onClose code={} for client {}", code, clientID)
+//    OATPP_LOGd(TAG, "onClose code={} for client {}", code, clientID)
     //delete client id from map
     if (webSocketComponent == nullptr) {
         webSocketComponent = &WebSocketComponent::getInstance();
@@ -83,7 +81,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
 //        auto wholeMessage = m_messageBuffer.toString();
         m_messageBuffer.reset();
       
-        OATPP_LOGd(__func__, "line {} to client {} message={}", __LINE__, clientID, wholeMessage);
+//        OATPP_LOGd(__func__, "line {} to client {} message={}", __LINE__, clientID, wholeMessage);
     
         //dispatch messages to apps
         
@@ -104,65 +102,22 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                     }
     
                     if (!result.empty()) {
-                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
+//                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
                         executor->execute<SendMessageCoroutine>(socket, result);
                         //socket->sendOneFrameTextAsync(result);
     
-                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
+//                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
                     }
                 }
         );
         
-        OATPP_LOGi(__func__, "line {}", __LINE__)
-        //return nullptr;
-        //this is echo direct from websocket
-        //return socket->sendOneFrameTextAsync("Hello from oatpp!: " + wholeMessage);
+//        OATPP_LOGi(__func__, "line {}", __LINE__)
     } else if (size > 0) { // message frame received
-//        std::string str = {};
-//        for (auto i = 0; i < size; i++) {
-//            str += data[i];
-//        } 
-//        OATPP_LOGd(__func__, " Data = {}, size = {}", str, size);
         m_messageBuffer.writeSimple(data, size);
     }
     
     return nullptr; // do nothing
     
-}
-
-void WebSocketListener::sendToRestServer(const oatpp::String& version, const oatpp::String& vin){
-    OATPP_COMPONENT(std::shared_ptr<oatpp::web::client::RequestExecutor>, requestExecutor, "clientExcecutor");
-    auto objectMapper = std::make_shared<oatpp::json::ObjectMapper>();
-    
-    auto client = ClientApi::createShared(requestExecutor, objectMapper);
-    
-    class SendCoroutine : public oatpp::async::Coroutine<SendCoroutine> {
-        std::shared_ptr<ClientApi> m_client;
-        oatpp::String m_version;
-        oatpp::String m_vin;
-        oatpp::String m_message;
-        
-    public:
-        SendCoroutine(const std::shared_ptr<ClientApi>& client, oatpp::String  version, const oatpp::String& vin,
-                      const oatpp::String& message) : 
-                      m_client(client), m_version(std::move(version)), m_vin(vin), m_message(message) {}
-                      
-        Action act() override {
-            return m_client->doAsyncPostBodyAccess(m_vin, m_version, m_message).callbackTo(&SendCoroutine::onResponse);
-        }
-            
-        Action onResponse(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>& response) {
-            if (response->getStatusCode() == 200) {
-                OATPP_LOGi("Client", "Message sent successfully")
-            } else {
-                OATPP_LOGe("Client", "Failed to send Message")
-            }
-            return finish();
-        }
-    };
-    
-    auto executor = std::make_shared<oatpp::async::Executor>();
-    executor->execute<SendCoroutine>(client, version, vin, m_messageBuffer.toString());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,24 +129,21 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
                                                    const std::shared_ptr<const ParameterMap>& params) {
     
     SOCKETS ++;
-    OATPP_LOGi(__func__, "New Incoming Connection. Connection count={}", SOCKETS.load())
+    //OATPP_LOGi(__func__, "New Incoming Connection. Connection count={}", SOCKETS.load())
     OATPP_COMPONENT(std::shared_ptr<Config>, m_cmdArgs);
     auto clientIdParam = params->find("ClientId");
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     if (clientIdParam == params->end()) {
         OATPP_LOGe(TAG, "ClientId paramter not found")
         std::string str = "no ClientId";
         socket->sendCloseAsync(1, str);
     }
     auto clientId = clientIdParam->second;
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     if (clientId->empty()) {
         std::string str = "ClientId paramter is empty";
         OATPP_LOGe(TAG, str)
         socket->sendCloseAsync(2, str);
         
     }
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     
     std::string common_name = {};
     if (m_cmdArgs->use_mtls) {
@@ -218,7 +170,6 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
             }
         }
     }
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     
     // register the soket by client id
     if (webSocketComponent == nullptr) {
@@ -230,11 +181,8 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
 //    webSocketComponent->addClient(common_name, socket);
     //use vin from path
     webSocketComponent->addClient(clientId, socket);
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     //allocate listener per connection
     OATPP_COMPONENT(std::shared_ptr<boost::asio::io_context>, ioc);
-    //auto ioc = std::make_shared<boost::asio::io_context>();
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     //use the vin from ssl
     //socket->setListener(std::make_shared<WebSocketListener>(common_name, ioc, m_cmdArgs->http_request_address, m_cmdArgs->http_request_port));
     //use vin from path

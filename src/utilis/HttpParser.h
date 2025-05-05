@@ -50,50 +50,42 @@ static std::string buildResponseStringBuffer(const boost::beast::http::response<
  *      body string  
  */
 static auto createRequestFromBuffer(std::shared_ptr<std::string> buffer) {
-    OATPP_LOGi(__func__, "line {} msg {} size = {}", __LINE__, *buffer, buffer->size())
     std::istringstream stream(*buffer);
     std::string method;
     std::string url;
     std::string version;
     std::string body;
     
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     stream >> method >> url >> version;
         
     std::unordered_map<std::string, std::string> headers;
     std::string headerLine;
-    OATPP_LOGi(__func__, "line {}", __LINE__)
     auto mycount = 0;
+    //read the emppty /r/n of the first line
     std::getline(stream, headerLine);
     while (std::getline(stream, headerLine) && !headerLine.empty()) {
         mycount++;
-        OATPP_LOGi(__func__, "line {} headerline {} aa", __LINE__, headerLine)
         auto delimiterPos = headerLine.find(": ");
         if (delimiterPos == std::string::npos && mycount > 1) {
-            OATPP_LOGi(__func__, "line {} headerline {} at deimiter {}", __LINE__, headerLine, delimiterPos)
+//            OATPP_LOGi(__func__, "line {} headerline {} at deimiter {}", __LINE__, headerLine, delimiterPos)
             break;
         }
         auto headerName = headerLine.substr(0, delimiterPos);
         auto headerValue = headerLine.substr(delimiterPos + 2, headerLine.size() - (delimiterPos + 2) - 1);
-        OATPP_LOGi(__func__, "line {} header {}, value {}", __LINE__, headerName, headerValue)
         auto [first, second] = headers.try_emplace(headerName, headerValue);
         if (!second) {
             OATPP_LOGe(__func__, "error insert header {} aleady added one", headerName) 
         }
     }
-    OATPP_LOGi(__func__, "line {}", __LINE__)
+//    OATPP_LOGi(__func__, "line {}", __LINE__)
     
     //oatpp::web::protocol::http::
     std::streamsize contentLength = 0;
     if (headers.find("Content-Length") != headers.end()) {
-        OATPP_LOGi(__func__, "line {}", __LINE__)
         contentLength = std::stoi(headers["Content-Length"]);
         body.insert(0, contentLength, '0');
         stream.read(&body[0], contentLength);
-        OATPP_LOGi(__func__, "line {}, body {}", __LINE__, body)
-        
     }
-    OATPP_LOGi(__func__, "line {}", __LINE__)
    
     return std::make_tuple(method, url, version, headers, body);
 }

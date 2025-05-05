@@ -39,7 +39,6 @@
 #include "utilis/split.h"
 #include "utilis/sslContext.h"
 
-#include "client/RestClient.h"
 
 
 class AppComponent {
@@ -187,15 +186,6 @@ public:
         
     }());
     
-    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::web::client::ApiClient>, clientApi)("clientapi", [this] {
-        OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, apiObjectMapper, "clientObjectMapper");
-        OATPP_COMPONENT(std::shared_ptr<oatpp::web::client::RequestExecutor>, requestExcecutor, "clientExcecutor");
-        
-        return oatpp::web::client::ApiClient::createShared(requestExcecutor, apiObjectMapper);
-        //return std::make_shared<oatpp::web::client::ApiClient>(requestExcecutor, apiObjectMapper);
-        
-    }());
-
 private:
     static constexpr const char *TAG = "Server_Init";
     
