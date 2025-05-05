@@ -94,7 +94,7 @@ public:
         Action act() override {
             OATPP_LOGi("MyApp", "ws/by-id/{ClientId}")
             auto clienId = request->getPathVariable("ClientId");
-            auto id = request->getHeader("ClientId");
+            auto id = request->getHeader("X-Client-ID");
             auto params = std::make_shared<oatpp::network::ConnectionHandler::ParameterMap>();
             (*params)["ClientId"] = clienId;
             (*params)["Id"] = id;
