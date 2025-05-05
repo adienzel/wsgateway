@@ -87,12 +87,12 @@ public:
     };
 
 
-    ENDPOINT_ASYNC("GET", "ws/{ClientId}", WS) {
+    ENDPOINT_ASYNC("GET", "ws/by-id/{ClientId}", WS) {
     
     ENDPOINT_ASYNC_INIT(WS)
         
         Action act() override {
-            OATPP_LOGi("MyApp", "WS/{clientId}")
+            OATPP_LOGi("MyApp", "ws/by-id/{ClientId}")
             auto clienId = request->getPathVariable("ClientId");
             auto id = request->getHeader("ClientId");
             auto params = std::make_shared<oatpp::network::ConnectionHandler::ParameterMap>();
