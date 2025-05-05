@@ -103,7 +103,7 @@ void run(int argc, const char * argv[]) {
     
         std::list<std::thread> threads;
 
-        for (auto& provider : *connectionProviders) {
+        for (auto const& provider : *connectionProviders) {
             try {
                 threads.emplace_back([provider]{
                     /* Get connection handler component */

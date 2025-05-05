@@ -22,7 +22,7 @@ struct Config {
         number_of_ports = (uint8_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_PORTS", 24);
         base_port = (uint16_t)EnvUtils::getEnvInt("WSS_PORT", 8020);
         http_request_address = EnvUtils::getEnvString("WSS_HTTP_REQUEST_ADDRESS", "127.0.0.1");
-        http_request_port = EnvUtils::getEnvString("WSS_HTTP_REQUEST_PORT", "8992");
+        http_request_port = EnvUtils::getEnvString("WSS_HTTP_REQUEST_PORT", "8082");
         
         // OATPP config
         number_of_worker_threads =

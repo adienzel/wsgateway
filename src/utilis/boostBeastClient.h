@@ -95,6 +95,7 @@ static std::string sendHttpReqSync(std::shared_ptr<std::string> msg, std::string
 //    OATPP_LOGi(__func__, "line {}", __LINE__)
 }
 
+
 static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::string> msg, 
                                                     std::string& host,
                                                     std::string& port,
