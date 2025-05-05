@@ -67,11 +67,11 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                                                               p_char8 data, 
                                                               oatpp::v_io_size size) {
     if (size == 0) { // message transfer finished
-        if (opcode == oatpp::websocket::Frame::OPCODE_TEXT) {
-            OATPP_LOGd(__func__, "got text");
-        } else if (opcode == oatpp::websocket::Frame::OPCODE_BINARY) {
-            OATPP_LOGd(__func__, "got binary of size {}", m_messageBuffer.getCapacity());
-        }
+//        if (opcode == oatpp::websocket::Frame::OPCODE_TEXT) {
+//            OATPP_LOGd(__func__, "got text");
+//        } else if (opcode == oatpp::websocket::Frame::OPCODE_BINARY) {
+//            OATPP_LOGd(__func__, "got binary of size {}", m_messageBuffer.getCapacity());
+//        }
     
         auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         auto t = std::make_shared<std::string>();
