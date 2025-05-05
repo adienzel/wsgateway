@@ -49,6 +49,21 @@ oatpp::async::CoroutineStarter WebSocketListener::onClose(const std::shared_ptr<
 }
 
 
+
+class SendMessageCoroutine : public oatpp::async::Coroutine<SendMessageCoroutine> {
+private:
+    std::shared_ptr<oatpp::websocket::AsyncWebSocket> m_socket;
+    std::string m_message;
+
+public:
+    SendMessageCoroutine(const std::shared_ptr<oatpp::websocket::AsyncWebSocket>& socket, const std::string& message)
+            : m_socket(socket), m_message(message) {}
+    
+    Action act() override {
+        return m_socket->sendOneFrameTextAsync(m_message).next(finish());
+    }
+};
+
 oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_ptr<AsyncWebSocket>& socket,
                                                               v_uint8 opcode, 
                                                               p_char8 data, 
@@ -73,11 +88,11 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         //dispatch messages to apps
         
         //std::make_shared<session>(*ioc_)->run(http_server_address_.c_str(), http_server_port_.c_str(), wholeMessage, clientID, &t);
-    
+        OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor_);
         boost::asio::co_spawn(
                 *ioc_,
                 asyncHttpClient(wholeMessage, http_server_address_, http_server_port_, clientID, t),
-                [socket](std::exception_ptr eptr, std::string result) {
+                [socket, executor=executor_](std::exception_ptr eptr, std::string result) {
                     //std::cout << "[co_spawn handler] result = " << result << std::endl;
                     if (eptr) {
                         try { 
@@ -90,7 +105,9 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
     
                     if (!result.empty()) {
                         OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
-                        socket->sendOneFrameTextAsync(result);
+                        executor->execute<SendMessageCoroutine>(socket, result);
+                        //socket->sendOneFrameTextAsync(result);
+    
                         OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
                     }
                 }
