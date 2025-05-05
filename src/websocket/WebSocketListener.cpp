@@ -91,6 +91,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                     if (!result.empty()) {
                         OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
                         socket->sendOneFrameTextAsync(result);
+                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
                     }
                 }
         );
