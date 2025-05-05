@@ -176,7 +176,7 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
     if (webSocketComponent == nullptr) {
         webSocketComponent = &WebSocketComponent::getInstance();
     }
-    OATPP_LOGi(__func__, "line {}", __LINE__)
+    //OATPP_LOGi(__func__, "line {}", __LINE__)
     
     //use the vin from ssl
 //    webSocketComponent->addClient(common_name, socket);
@@ -188,7 +188,7 @@ void WSInstanceListener::onAfterCreate_NonBlocking(const std::shared_ptr<WebSock
     //socket->setListener(std::make_shared<WebSocketListener>(common_name, ioc, m_cmdArgs->http_request_address, m_cmdArgs->http_request_port));
     //use vin from path
     socket->setListener(std::make_shared<WebSocketListener>(clientId, ioc, m_cmdArgs->http_request_address, m_cmdArgs->http_request_port));
-    OATPP_LOGi(__func__, "line {}", __LINE__)
+    //OATPP_LOGi(__func__, "line {}", __LINE__)
 }
 
 void WSInstanceListener::onBeforeDestroy_NonBlocking(const std::shared_ptr<WebSocketListener::AsyncWebSocket>& socket) {
