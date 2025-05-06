@@ -113,10 +113,10 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                         std::istringstream(str) >> ns2;
 
                         auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                        OATPP_LOGd(__func__ , "result before send {}", ns - ns2)
+                        OATPP_LOGd(__func__ , "result before send {}", (ns - ns2)/1000000)
                         executor->execute<SendMessageCoroutine>(socket, result);
                         ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                        OATPP_LOGd(__func__ , "result before after {}", ns - ns2)
+                        OATPP_LOGd(__func__ , "result before after {}", (ns - ns2)/1000000)
                         //socket->sendOneFrameTextAsync(result);
     
 //                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
