@@ -105,8 +105,12 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
                     if (!result.empty()) {
 //                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
     
+    
+                        std::string str = *(t.get());
+                        OATPP_LOGd(__func__ , "result before send {}", str)
                         long long ns2;
-                        std::istringstream(*t) >> ns2;
+                        
+                        std::istringstream(str) >> ns2;
 
                         auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         OATPP_LOGd(__func__ , "result before send {}", ns - ns2)
