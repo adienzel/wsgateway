@@ -83,9 +83,14 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
             co_return result;
         }
     
+//        co_await stream.async_connect(endpoints, asio::redirect_error(asio::use_awaitable, ec));
+//        if (ec) {
+//            OATPP_LOGe(__func__, "Connect error: {} for host {} port {}", ec.message(), host, port);
+//            co_return result;
+//        }
         co_await stream.async_connect(endpoints, asio::redirect_error(asio::use_awaitable, ec));
         if (ec) {
-            OATPP_LOGe(__func__, "Connect error: {} for host {} port {}", ec.message(), host, port);
+            OATPP_LOGe(__func__, "Connect error: {} for host {} port {}. Error code: {} - {}", ec.message(), host, port, ec.value(), ec.category().name());
             co_return result;
         }
     
