@@ -1,5 +1,5 @@
 #!/bin/bash
-nodes=$(docker ps --all | grep scylla-node | awk '{print $NF}')
+nodes=$(docker ps --all | grep scylla_node | awk '{print $NF}')
 
 # Extract the prefix numbers and sort them 
 prefix_numbers=$(echo "$nodes" | grep -oP '(?<=scylla-node)\d+' | sort -n)
@@ -12,7 +12,7 @@ STOP=$(echo "$prefix_numbers" | tail -n 1)
 
 ip_addresses=()
 for i in $(seq $START $STOP); do
-   ip=$(docker inspect scylla-node${i} | grep -v "SecondaryIPAddresses" | grep -oP '(?<="IPAddress": ")[^"]+') 
+   ip=$(docker inspect scylla_node${i} | grep -v "SecondaryIPAddresses" | grep -oP '(?<="IPAddress": ")[^"]+') 
    ip_addresses+=($ip)
 #    docker inspect scylla-node${i} | grep -v "SecondaryIPAddresses" | grep "IPAddress" | sort | uniq
 done
