@@ -26,38 +26,25 @@ for i in $(seq 0 $((NUM_CONTAINERS - 1))); do
 
   # Create container-specific directories
   DATA_DIR="./data_$i"
-  CONF_DIR="./conf_$i"
-  mkdir -p "$DATA_DIR" "$CONF_DIR"
-
-  # Generate custom scylla.yaml
-  SCYLLA_YAML="${CONF_DIR}/scylla.yaml"
-  cat > "$SCYLLA_YAML" <<EOF
-listen_address: 127.0.0.1
-rpc_address: 127.0.0.1
-broadcast_address: 127.0.0.1
-broadcast_rpc_address: 127.0.0.1
-
-storage_port: $STORAGE_PORT
-ssl_storage_port: $SSL_STORAGE_PORT
-native_transport_port: $NATIVE_PORT
-rpc_port: $RPC_PORT
-api_port: $API_PORT
-prometheus_port: $PROM_PORT
-
-endpoint_snitch: SimpleSnitch
-EOF
+  mkdir -p "$DATA_DIR"
 
   echo "Starting $CONTAINER_NAME on host network with offset $OFFSET"
 
-docker run -d --name "$CONTAINER_NAME" --network host \
-  -v "$(realpath "$DATA_DIR"):/var/lib/scylla" \
-  -v "$(realpath "$SCYLLA_YAML"):/etc/scylla/custom.yaml:ro" \
-  "$IMAGE_NAME" \
-  --developer-mode 1 --smp 1 --memory 750M \
-  --config-file /etc/scylla/custom.yaml --overprovisioned
-
-#  docker run -d --name "$CONTAINER_NAME" --network host \
-#    -v "$(realpath "$DATA_DIR"):/var/lib/scylla" \
-#    -v "$(realpath "$SCYLLA_YAML"):/etc/scylla/scylla.yaml:ro" \
-#    "$IMAGE_NAME" --smp 1 --memory 750M --developer-mode 1
+  docker run -d --name "$CONTAINER_NAME" --network host \
+    -v "$(realpath "$DATA_DIR"):/var/lib/scylla" \
+    "$IMAGE_NAME" \
+    --developer-mode 1 \
+    --smp 1 \
+    --memory 750M \
+    --overprovisioned \
+    --listen-address 127.0.0.1 \
+    --broadcast-address 127.0.0.1 \
+    --rpc-address 127.0.0.1 \
+    --broadcast-rpc-address 127.0.0.1 \
+    --storage-port $STORAGE_PORT \
+    --ssl-storage-port $SSL_STORAGE_PORT \
+    --native-transport-port $NATIVE_PORT \
+    --rpc-port $RPC_PORT \
+    --prometheus-address 127.0.0.1 \
+    --prometheus-port $PROM_PORT
 done
