@@ -1,34 +1,36 @@
 #!/bin/bash
 
-START=0
-#number scylladb servers = SCYLLA_LAST_NODE + 1 -- 2 means 3 servers
-STOP=${SCYLLA_LAST_NODE:-2}
+DEFAULT_NUM_CONTAINERS=3
+DEFAULT_PORT_OFFSET=0
+IMAGE_NAME="scylladb/scylla"
+NAME_PREFIX="scylla_node"
 
-# Add scyllaDB docker nodes
-for i in $(seq $START $STOP); do
-    PORT=$((i + 2))
-    NODE=$((i + 1))
-    INT_PORT=$(($i * 2))
-    INT_PORT_TLS=$(($INT_PORT + 1))
-    TRIFFT_PORT=$((i))
-#    echo "NODE = $NODE PORT = 904$PORT INT_PORT = 700$INT_PORT INT_PORT_TLS = 700$INT_PORT_TLS TRIFFT_PORT = 916$TRIFFT_PORT"
-    INT_PORT_TLS_PREFIX=700
-    output=$(sudo lsof -i :7001)
-    if [ -n "$output" ]; then
-      INT_PORT_TLS_PREFIX=701
-    fi
+NUM_CONTAINERS=${1:-$DEFAULT_NUM_CONTAINERS}
+PORT_OFFSET=${2:-$DEFAULT_PORT_OFFSET}
 
-    if [ "$NODE" == "1" ]; then
-      echo "this is node $NODE configuration"
-      echo "NODE = $NODE PORT = 904$PORT INT_PORT = 700$INT_PORT INT_PORT_TLS = $INT_PORT_TLS_PREFIX$INT_PORT_TLS TRIFFT_PORT = 916$TRIFFT_PORT"
-      docker run --name scylla-node$NODE -p 904$PORT:9042 -p 700$INT_PORT:7000 -p $INT_PORT_TLS_PREFIX$INT_PORT_TLS:7001 -p 916$TRIFFT_PORT:9160 -e SCYLLA_CLUSTER_NAME="ws-cluster" -d scylladb/scylla --smp=4
+echo "Starting $NUM_CONTAINERS Scylla containers using --network host with port offset $PORT_OFFSET"
 
-    else
-      echo "this is node - $NODE configuration"
-      echo "NODE = $NODE PORT = 904$PORT INT_PORT = 700$INT_PORT INT_PORT_TLS = $INT_PORT_TLS_PREFIX$INT_PORT_TLS TRIFFT_PORT = 916$TRIFFT_PORT"
-      docker run --name scylla-node$NODE  -p 904$PORT:9042 -p 700$INT_PORT:7000 -p $INT_PORT_TLS_PREFIX$INT_PORT_TLS:7001 -p 916$TRIFFT_PORT:9160 -e SCYLLA_CLUSTER_NAME="ws-cluster" -d scylladb/scylla -- smp=4 \
-              --seeds="$(docker inspect --format='{{ .NetworkSettings.IPAddress }}' scylla-node1)"
-    fi
-#    docker run --name scylla-node$i --ip 172.17.0.$ADDR -e SCYLLA_SEEDS="172.17.0.2,172.17.0.3,172.17.0.4" -e SCYLLA_CLUSTER_NAME="ws-cluster" -d scylladb/scylla --smp=4
+for i in $(seq 0 $((NUM_CONTAINERS - 1))); do
+  CONTAINER_NAME="${NAME_PREFIX}_${i}"
 
+  # Offset per container
+  OFFSET=$((PORT_OFFSET + i * 100))
+
+  echo "  -> Starting $CONTAINER_NAME with port offset $OFFSET"
+
+  docker run -d --name ${CONTAINER_NAME} --network host \
+    -e SCYLLA_API_PORT=$((10000 + OFFSET)) \
+    -e SCYLLA_JMX_PORT=$((7199 + OFFSET)) \
+    -e SCYLLA_CQL_PORT=$((9042 + OFFSET)) \
+    -e SCYLLA_THRIFT_PORT=$((9160 + OFFSET)) \
+    -e SCYLLA_STORAGE_PORT=$((7000 + OFFSET)) \
+    -e SCYLLA_SSL_STORAGE_PORT=$((7001 + OFFSET)) \
+    -e SCYLLA_PROM_PORT=$((19042 + OFFSET)) \
+    ${IMAGE_NAME} --smp 1 --memory 750M \
+    --api-address 0.0.0.0 \
+    --developer-mode 1 \
+    --broadcast-address 127.0.0.1 \
+    --broadcast-rpc-address 127.0.0.1 \
+    --listen-address 127.0.0.1 \
+    --rpc-address 127.0.0.1
 done
