@@ -34,7 +34,7 @@ struct Config {
         
         //scylladb
         scylladb_address =
-                EnvUtils::getEnvString("WSS_SCYLLA_DB_ADDRESS", "172.17.0.2");
+                EnvUtils::getEnvString("WSS_SCYLLA_DB_ADDRESS", "127.0.0.1");
         scylladb_port =
                 EnvUtils::getEnvString("WSS_SCYLLADB_PORT", "9042");
         
@@ -44,8 +44,8 @@ struct Config {
         
         
         auto tmp = EnvUtils::getEnvString("WSS_USE_MTLS", "false");
-        std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c){ return std::tolower(c); });
-        use_mtls = tmp.compare("true") == 0;
+        std::ranges::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c){ return std::tolower(c); });
+        use_mtls = tmp == "true";
         
         scylladb_replication_factor =
                 (uint32_t)EnvUtils::getEnvInt("WSS_SCYLLADB_REPLICATION_FACTOR", 3);
