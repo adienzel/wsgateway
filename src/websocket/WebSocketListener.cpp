@@ -60,7 +60,7 @@ public:
     
     Action act() override {
         auto ns1 = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        OATPP_LOGd(__func__ , "Send to client after {}", ns1 - std::stol(*m_t))
+        OATPP_LOGd(__func__ , "Send to client after {}", ns1 - std::stoll(*m_t))
         return m_socket->sendOneFrameTextAsync(m_message).next(finish());
     }
 };
