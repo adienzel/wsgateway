@@ -91,7 +91,7 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
         boost::asio::co_spawn(
                 *ioc_,
                 asyncHttpClient(wholeMessage, http_server_address_, http_server_port_, clientID, t),
-                [socket, executor=executor_, &t](std::exception_ptr eptr, std::string result) {
+                [socket, executor=executor_, t](std::exception_ptr eptr, std::string result) {
                     //std::cout << "[co_spawn handler] result = " << result << std::endl;
                     if (eptr) {
                         try { 
@@ -106,11 +106,11 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
 //                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
     
     
-                        //std::string str = *(t.get());
+                        std::string str = *(t.get());
                         OATPP_LOGd(__func__ , "result before send")
                         long long ns2;
                         
-                        //std::istringstream(str) >> ns2;
+                        std::istringstream(str) >> ns2;
 
                         auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         OATPP_LOGd(__func__ , "result before send {}", ns - ns2)
