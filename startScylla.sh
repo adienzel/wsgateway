@@ -14,7 +14,8 @@ echo "Launching $NUM_CONTAINERS Scylla containers with dynamic ports..."
 
 for i in $(seq 0 $((NUM_CONTAINERS - 1))); do
   CONTAINER_NAME="${NAME_PREFIX}_${i}"
-  OFFSET=$((PORT_OFFSET + i * 100))
+#  OFFSET=$((PORT_OFFSET + i * 100))
+  OFFSET=$((PORT_OFFSET + i))
 
   # Assign custom ports per instance (host side)
   HOST_STORAGE_PORT=$((7000 + OFFSET))
