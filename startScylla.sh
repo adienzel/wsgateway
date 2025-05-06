@@ -49,8 +49,15 @@ EOF
 
   echo "Starting $CONTAINER_NAME on host network with offset $OFFSET"
 
-  docker run -d --name "$CONTAINER_NAME" --network host \
-    -v "$(realpath "$DATA_DIR"):/var/lib/scylla" \
-    -v "$(realpath "$SCYLLA_YAML"):/etc/scylla/scylla.yaml:ro" \
-    "$IMAGE_NAME" --smp 1 --memory 750M --developer-mode 1
+docker run -d --name "$CONTAINER_NAME" --network host \
+  -v "$(realpath "$DATA_DIR"):/var/lib/scylla" \
+  -v "$(realpath "$SCYLLA_YAML"):/etc/scylla/custom.yaml:ro" \
+  "$IMAGE_NAME" \
+  --developer-mode 1 --smp 1 --memory 750M \
+  --config-file /etc/scylla/custom.yaml --overprovisioned
+
+#  docker run -d --name "$CONTAINER_NAME" --network host \
+#    -v "$(realpath "$DATA_DIR"):/var/lib/scylla" \
+#    -v "$(realpath "$SCYLLA_YAML"):/etc/scylla/scylla.yaml:ro" \
+#    "$IMAGE_NAME" --smp 1 --memory 750M --developer-mode 1
 done
