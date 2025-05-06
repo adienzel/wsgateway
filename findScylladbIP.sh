@@ -12,7 +12,7 @@ STOP=$(echo "$prefix_numbers" | tail -n 1)
 
 ip_addresses=()
 for i in $(seq $START $STOP); do
-   ip=$(docker inspect scylla_node${i} | grep -v "SecondaryIPAddresses" | grep -oP '(?<="IPAddress": ")[^"]+') 
+   ip=$(docker inspect scylla_node_${i} | grep -v "SecondaryIPAddresses" | grep -oP '(?<="IPAddress": ")[^"]+') 
    ip_addresses+=($ip)
 #    docker inspect scylla_node${i} | grep -v "SecondaryIPAddresses" | grep "IPAddress" | sort | uniq
 done
