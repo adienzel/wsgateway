@@ -30,7 +30,7 @@ struct Config {
         number_of_io_threads =
                 (uint32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_IO_THREADS", 24);
         number_of_timer_threads =
-                (uint32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_TIMER_THREADS", 1);
+                (uint32_t)EnvUtils::getEnvInt("WSS_NUMBER_OF_TIMER_THREADS", 2);
         
         //scylladb
         scylladb_address =
