@@ -52,11 +52,10 @@ class SendMessageCoroutine : public oatpp::async::Coroutine<SendMessageCoroutine
 private:
     std::shared_ptr<oatpp::websocket::AsyncWebSocket> m_socket;
     std::string m_message;
-    std::shared_ptr<std::string> m_t;
 
 public:
     SendMessageCoroutine(const std::shared_ptr<oatpp::websocket::AsyncWebSocket>& socket, const std::string& message)
-            : m_socket(socket), m_message(message), m_t(t) {}
+            : m_socket(socket), m_message(message) {}
     
     Action act() override {
         return m_socket->sendOneFrameTextAsync(m_message).next(finish());
