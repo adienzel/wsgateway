@@ -16,6 +16,7 @@
 #include <memory>
 #include <chrono>
 #include <string>
+#include <random>
 
 #include "utilis/HttpParser.h"
 #include "../websocket/WebSocketComponents.h"
@@ -23,6 +24,10 @@
 
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
+std::random_device device{};
+std::mt19937 generator(device());
+std::uniform_int_distribution<long> distribution(1, (long) 1e12);
+static long transactionCounter = distribution(generator);
 
 static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::string> msg, 
                                                     std::string& host,
@@ -36,7 +41,7 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
     
     beast::error_code ec;
     std::string result = "error";
-    
+    port.back() = '0' + distribution(generator) % 4 + 2;
     try {
         auto [method, url, version, headers, body] = createRequestFromBuffer(msg);
         auto req = std::make_shared<http::request<http::string_body>>();
