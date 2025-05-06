@@ -55,13 +55,10 @@ private:
     std::shared_ptr<std::string> m_t;
 
 public:
-    SendMessageCoroutine(const std::shared_ptr<oatpp::websocket::AsyncWebSocket>& socket, const std::string& message, std::shared_ptr<std::string> t)
+    SendMessageCoroutine(const std::shared_ptr<oatpp::websocket::AsyncWebSocket>& socket, const std::string& message)
             : m_socket(socket), m_message(message), m_t(t) {}
     
     Action act() override {
-        auto ns1 = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        OATPP_LOGd(__func__ , "Send to client after {}", ns1 )
-        OATPP_LOGd(__func__ , "Send to client after {}", ns1 - std::stoll(*m_t))
         return m_socket->sendOneFrameTextAsync(m_message).next(finish());
     }
 };
@@ -108,7 +105,11 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
     
                     if (!result.empty()) {
 //                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
-                        executor->execute<SendMessageCoroutine>(socket, result, t);
+                        auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        OATPP_LOGd(__func__ , "result before send {}", ns - std::stoll(*t))
+                        executor->execute<SendMessageCoroutine>(socket, result);
+                        ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        OATPP_LOGd(__func__ , "result before after {}", ns - std::stoll(*t))
                         //socket->sendOneFrameTextAsync(result);
     
 //                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
