@@ -83,11 +83,6 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
             co_return result;
         }
     
-//        co_await stream.async_connect(endpoints, asio::redirect_error(asio::use_awaitable, ec));
-//        if (ec) {
-//            OATPP_LOGe(__func__, "Connect error: {} for host {} port {}", ec.message(), host, port);
-//            co_return result;
-//        }
         co_await stream.async_connect(endpoints, asio::redirect_error(asio::use_awaitable, ec));
         if (ec) {
             OATPP_LOGe(__func__, "Connect error: {} for host {} port {}. Error code: {} - {}", ec.message(), host, port, ec.value(), ec.category().name());
@@ -115,22 +110,6 @@ static boost::asio::awaitable<std::string> asyncHttpClient(std::shared_ptr<std::
     
         stream.socket().shutdown(tcp::socket::shutdown_both, ec); // allow error
     
-//        auto const results = co_await resolver.async_resolve(host, port, asio::use_awaitable);
-//        co_await stream.async_connect(results, asio::use_awaitable);
-//    
-//        //http::request<http::string_body> req{http::verb::post, target, 11};
-//        req->set(http::field::host, host);
-//    
-//        co_await http::async_write(stream, *req, asio::use_awaitable);
-//    
-//        beast::flat_buffer buffer;
-//        http::response<http::string_body> res;
-//        co_await http::async_read(stream, buffer, res, asio::use_awaitable);
-//    
-//        auto result = buildResponseStringBuffer(res);
-//    
-//        beast::error_code ec;
-//        stream.socket().shutdown(tcp::socket::shutdown_both, ec);
     
         //co_return result;
     } catch (const std::exception& e) {
