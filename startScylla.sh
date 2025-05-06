@@ -18,7 +18,7 @@ for i in $(seq 0 $((NUM_CONTAINERS - 1))); do
 
   # Assign custom ports per instance (host side)
   HOST_STORAGE_PORT=$((7000 + OFFSET))
-  HOST_SSL_STORAGE_PORT=$((7001 + OFFSET))
+  HOST_SSL_STORAGE_PORT=$((7004 + OFFSET))
   HOST_NATIVE_PORT=$((9042 + OFFSET))
   HOST_RPC_PORT=$((9160 + OFFSET))
   HOST_API_PORT=$((10000 + OFFSET))
