@@ -106,8 +106,8 @@ oatpp::async::CoroutineStarter WebSocketListener::readMessage(const std::shared_
 //                        OATPP_LOGd(__func__, "boost::asio::co_spawn line {} result = {}", __LINE__, result);
     
     
-                        std::string str = *(t.get());
-                        OATPP_LOGd(__func__ , "result before send {}", str)
+                        //std::string str = *(t.get());
+                        OATPP_LOGd(__func__ , "result before send")
                         long long ns2;
                         
                         std::istringstream(str) >> ns2;
