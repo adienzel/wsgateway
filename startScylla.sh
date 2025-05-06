@@ -36,7 +36,7 @@ for i in $(seq 0 $((NUM_CONTAINERS - 1))); do
     --developer-mode 1 \
     --smp 1 \
     --memory 750M \
-    --overprovisioned \
+    --overprovisioned 1\
     --listen-address 127.0.0.1 \
     --broadcast-address 127.0.0.1 \
     --rpc-address 127.0.0.1 \
