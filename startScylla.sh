@@ -41,7 +41,7 @@ for i in $(seq 0 $((NUM_CONTAINERS - 1))); do
     -v "$(realpath "$DATA_DIR"):/var/lib/scylla" \
     "$IMAGE_NAME" \
     --developer-mode 1 \
-    --smp 1 \
+    --smp 2 \
     --memory 750M \
     --overprovisioned 1
 done
